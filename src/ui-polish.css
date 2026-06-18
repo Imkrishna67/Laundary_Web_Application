@@ -1,0 +1,283 @@
+body {
+  background:
+    radial-gradient(circle at 8% 8%, rgba(24, 167, 255, 0.18), transparent 32rem),
+    radial-gradient(circle at 92% 12%, rgba(93, 124, 255, 0.14), transparent 30rem),
+    linear-gradient(135deg, var(--background-soft) 0%, var(--background) 52%, var(--surface-muted) 100%);
+}
+
+[data-theme='dark'] body {
+  background:
+    radial-gradient(circle at 8% 8%, rgba(56, 189, 248, 0.16), transparent 34rem),
+    radial-gradient(circle at 92% 12%, rgba(167, 139, 250, 0.13), transparent 32rem),
+    linear-gradient(135deg, #08101f 0%, var(--background) 58%, #0d1626 100%);
+}
+
+.home-page,
+.login-page,
+.cart-page,
+.address-page,
+.schedule-page,
+.history-page,
+.tracking-page,
+.confirmation-page,
+.service-page,
+.profile-page {
+  background:
+    radial-gradient(circle at 8% 8%, rgba(24, 167, 255, 0.18), transparent 32rem),
+    radial-gradient(circle at 92% 12%, rgba(93, 124, 255, 0.14), transparent 30rem),
+    linear-gradient(135deg, var(--background-soft) 0%, var(--background) 52%, var(--surface-muted) 100%);
+}
+
+[data-theme='dark'] .home-page,
+[data-theme='dark'] .login-page,
+[data-theme='dark'] .cart-page,
+[data-theme='dark'] .address-page,
+[data-theme='dark'] .schedule-page,
+[data-theme='dark'] .history-page,
+[data-theme='dark'] .tracking-page,
+[data-theme='dark'] .confirmation-page,
+[data-theme='dark'] .service-page,
+[data-theme='dark'] .profile-page {
+  background:
+    radial-gradient(circle at 8% 8%, rgba(56, 189, 248, 0.16), transparent 34rem),
+    radial-gradient(circle at 92% 12%, rgba(167, 139, 250, 0.13), transparent 32rem),
+    linear-gradient(135deg, #08101f 0%, var(--background) 58%, #0d1626 100%);
+}
+
+.login-card,
+.profile-card,
+.menu-section,
+.settings-section,
+.search-card,
+.service-card,
+.active-order-card,
+.cart-item,
+.cart-summary-card,
+.promo-card,
+.empty-cart,
+.address-card,
+.address-option,
+.schedule-card,
+.confirmation-card,
+.summary-card,
+.status-card,
+.timeline-card,
+.partner-card,
+.details-card,
+.detail-card,
+.order-card,
+.service-list-card,
+.no-results,
+.placeholder-card {
+  background: var(--panel-soft);
+  border: 1px solid var(--border);
+  box-shadow: var(--card-shadow);
+  backdrop-filter: blur(22px);
+}
+
+.icon-button,
+.back-button,
+.address-back-button,
+.schedule-back-button,
+.edit-profile-button,
+.secondary-button,
+.home-button,
+.google-button,
+.current-location-button,
+.add-address-button,
+.category-tab,
+.slot-button,
+.add-button,
+.quantity-control,
+.quantity-button,
+.reorder-button,
+.help-button,
+.icon-action-button,
+.remove-button,
+.bottom-nav,
+.service-bottom-bar {
+  background: var(--glass);
+  border: 1px solid var(--border);
+  box-shadow: var(--soft-shadow);
+  backdrop-filter: blur(18px);
+}
+
+.field-group input,
+.address-input,
+.address-textarea,
+.date-input,
+.instructions-input,
+.promo-form input,
+.search-card input,
+textarea {
+  background: var(--input);
+  border: 1px solid var(--border);
+  color: var(--text);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, transform 0.2s ease;
+}
+
+.field-group input:focus,
+.address-input:focus,
+.address-textarea:focus,
+.date-input:focus,
+.instructions-input:focus,
+.promo-form input:focus,
+.search-card input:focus,
+textarea:focus {
+  border-color: var(--primary);
+  background: var(--glass-strong);
+  box-shadow: 0 0 0 4px rgba(24, 167, 255, 0.13);
+}
+
+[data-theme='dark'] .field-group input:focus,
+[data-theme='dark'] .address-input:focus,
+[data-theme='dark'] .address-textarea:focus,
+[data-theme='dark'] .date-input:focus,
+[data-theme='dark'] .instructions-input:focus,
+[data-theme='dark'] .promo-form input:focus,
+[data-theme='dark'] .search-card input:focus,
+[data-theme='dark'] textarea:focus {
+  box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.14);
+}
+
+.primary-button,
+.pickup-button,
+.confirm-button,
+.save-button,
+.proceed-button,
+.track-button,
+.view-cart-button,
+.category-tab.active,
+.slot-button.active {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+  border-color: transparent;
+  color: #ffffff;
+  box-shadow: var(--button-shadow);
+}
+
+button {
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease, background 0.18s ease, color 0.18s ease;
+}
+
+@media (hover: hover) {
+  .service-card:hover,
+  .cart-item:hover,
+  .order-card:hover,
+  .service-list-card:hover,
+  .address-option:hover,
+  .menu-item:hover,
+  .setting-item:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--card-shadow);
+  }
+
+  .primary-button:not(:disabled):hover,
+  .pickup-button:not(:disabled):hover,
+  .confirm-button:not(:disabled):hover,
+  .save-button:not(:disabled):hover,
+  .proceed-button:not(:disabled):hover,
+  .track-button:not(:disabled):hover,
+  .view-cart-button:not(:disabled):hover,
+  .icon-button:hover,
+  .back-button:hover,
+  .address-back-button:hover,
+  .schedule-back-button:hover,
+  .google-button:hover,
+  .current-location-button:hover,
+  .add-address-button:hover,
+  .reorder-button:hover,
+  .help-button:hover,
+  .icon-action-button:hover,
+  .remove-button:hover {
+    transform: translateY(-1px);
+  }
+}
+
+.eyebrow {
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.home-header h1,
+.login-brand h1,
+.brand-section h1,
+.cart-header h1,
+.address-header h1,
+.schedule-header h1,
+.history-header h1,
+.tracking-header h1,
+.confirmation-card h1,
+.service-header h1,
+.profile-header h1 {
+  letter-spacing: -0.04em;
+}
+
+.primary-button,
+.pickup-button,
+.confirm-button,
+.save-button,
+.proceed-button,
+.track-button,
+.view-cart-button {
+  position: relative;
+  overflow: hidden;
+}
+
+.primary-button::before,
+.pickup-button::before,
+.confirm-button::before,
+.save-button::before,
+.proceed-button::before,
+.track-button::before,
+.view-cart-button::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 0%, rgba(255, 255, 255, 0.22) 42%, transparent 68%);
+  transform: translateX(-120%);
+  transition: transform 0.7s ease;
+  pointer-events: none;
+}
+
+.primary-button:hover::before,
+.pickup-button:hover::before,
+.confirm-button:hover::before,
+.save-button:hover::before,
+.proceed-button:hover::before,
+.track-button:hover::before,
+.view-cart-button:hover::before {
+  transform: translateX(120%);
+}
+
+.service-card,
+.cart-item,
+.address-option,
+.order-card,
+.service-list-card,
+.menu-item,
+.setting-item {
+  border-radius: 24px;
+}
+
+.section-header,
+.order-top,
+.cart-header,
+.address-header,
+.schedule-header,
+.tracking-header,
+.profile-header {
+  align-items: center;
+}
+
+.see-all,
+.add-more-link,
+.text-link,
+.signup-link,
+.back-link {
+  font-weight: 900;
+}
+
+.bottom-nav button,
+.service-bottom-bar button {
+  font-weight: 900;
+}

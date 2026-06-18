@@ -1,0 +1,157 @@
+:root {
+  --primary: #18a7ff;
+  --primary-dark: #0077c8;
+  --secondary: #5d7cff;
+  --text: #172033;
+  --text-secondary: #61718a;
+  --muted: #94a3b8;
+  --heading: #102033;
+  --border: #dce8f5;
+  --border-strong: #bdd8f3;
+  --surface: #ffffff;
+  --surface-soft: #f8fbff;
+  --surface-muted: #f5fbff;
+  --input: #ffffff;
+  --panel: #ffffff;
+  --panel-soft: rgba(255, 255, 255, 0.88);
+  --glass: rgba(255, 255, 255, 0.72);
+  --glass-strong: rgba(255, 255, 255, 0.94);
+  --background: #f5fbff;
+  --background-soft: #eef7ff;
+  --danger: #d93025;
+  --danger-text: #b42318;
+  --danger-bg: #fff1f1;
+  --success: #08a04f;
+  --success-text: #087443;
+  --success-bg: #edfdf5;
+  --card-shadow: 0 24px 70px rgba(31, 62, 110, 0.14);
+  --soft-shadow: 0 14px 34px rgba(31, 62, 110, 0.10);
+  --button-shadow: 0 18px 34px rgba(24, 167, 255, 0.24);
+  --shadow: 0 24px 70px rgba(31, 62, 110, 0.16);
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color-scheme: dark;
+  color: var(--text);
+  background: var(--background);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+[data-theme='dark'] {
+  --primary: #38bdf8;
+  --primary-dark: #7dd3fc;
+  --secondary: #a78bfa;
+  --text: #e5eefb;
+  --text-secondary: #b8c4d8;
+  --muted: #94a3b8;
+  --heading: #f3f7ff;
+  --border: #2a3a52;
+  --border-strong: #33465f;
+  --surface: #141d2d;
+  --surface-soft: #182335;
+  --surface-muted: #0f1724;
+  --input: #111b2d;
+  --panel: #141d2d;
+  --panel-soft: rgba(20, 29, 45, 0.86);
+  --glass: rgba(20, 29, 45, 0.62);
+  --glass-strong: rgba(20, 29, 45, 0.94);
+  --background: #09111f;
+  --background-soft: #0d1626;
+  --danger: #fb7185;
+  --danger-text: #fecdd3;
+  --danger-bg: rgba(244, 63, 94, 0.13);
+  --success: #22c55e;
+  --success-text: #86efac;
+  --success-bg: rgba(34, 197, 94, 0.14);
+  --card-shadow: 0 24px 80px rgba(0, 0, 0, 0.38);
+  --soft-shadow: 0 14px 40px rgba(0, 0, 0, 0.24);
+  --button-shadow: 0 18px 38px rgba(56, 189, 248, 0.20);
+  --shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
+  color-scheme: dark;
+}
+
+.surface {
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--text);
+}
+
+.surface-muted {
+  background: var(--background);
+}
+
+.text-primary {
+  color: var(--text);
+}
+
+.text-secondary {
+  color: var(--text-secondary);
+}
+
+.border-soft {
+  border-color: var(--border);
+}
+
+.primary-gradient {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+}
+
+.primary-gradient-text {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-height: 100%;
+}
+
+body {
+  min-height: 100%;
+  margin: 0;
+  background: var(--background);
+  color: var(--text);
+}
+
+button,
+input {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+a {
+  color: inherit;
+}
+
+#root {
+  min-height: 100svh;
+}
+
+html,
+body {
+  min-width: 1024px;
+  overflow-x: auto;
+}
+
+body {
+  min-width: 1024px;
+}
+
+:root {
+  --desktop-page-width: 1180px;
+  --desktop-narrow-width: 900px;
+  --desktop-sidebar-width: 360px;
+}
