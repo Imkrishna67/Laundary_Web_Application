@@ -3,14 +3,11 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 24px 18px calc(24px + env(safe-area-inset-bottom));
+  padding: 24px clamp(16px, 4vw, 32px);
   position: relative;
   overflow: hidden;
-  color: #172033;
-  background:
-    radial-gradient(circle at top left, rgba(24, 167, 255, 0.18), transparent 32%),
-    radial-gradient(circle at bottom right, rgba(110, 89, 255, 0.16), transparent 34%),
-    linear-gradient(135deg, #f5fbff 0%, #eef7ff 48%, #f8f2ff 100%);
+  color: var(--text);
+  background: var(--background);
 }
 
 .login-bg-orb {
@@ -337,19 +334,20 @@
 @media (min-width: 1024px) {
   .login-page {
     min-height: 100vh;
-    max-width: var(--desktop-page-width);
+    width: 100%;
     margin: 0 auto;
-    padding: 48px 64px;
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) 520px;
+    padding: 48px clamp(24px, 5vw, 120px);
+    display: flex;
     align-items: center;
-    gap: 72px;
+    justify-content: center;
+    gap: 0;
     overflow: hidden;
   }
 
   .login-shell {
-    width: 100%;
-    max-width: none;
+    width: min(100%, 520px);
+    position: relative;
+    z-index: 1;
   }
 
   .brand-section {

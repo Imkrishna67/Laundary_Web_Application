@@ -250,9 +250,10 @@
 
 @media (min-width: 1024px) {
   .address-page {
-    max-width: var(--desktop-page-width);
+    width: 100%;
+    max-width: none;
     margin: 0 auto;
-    padding: 32px 48px 56px;
+    padding: 36px clamp(24px, 5vw, 72px) 64px;
   }
 
   .address-header {

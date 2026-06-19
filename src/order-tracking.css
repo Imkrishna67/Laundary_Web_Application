@@ -331,7 +331,8 @@
 
 @media (min-width: 1024px) {
   .tracking-page {
-    max-width: var(--desktop-page-width);
+    width: 100%;
+    max-width: none;
     margin: 0 auto;
     padding: 36px 48px 56px;
   }
@@ -382,8 +383,17 @@
     font-size: 12px;
   }
 
-  .details-card {
-    max-width: var(--desktop-narrow-width);
+.details-card {
+    padding: 22px;
+    border-radius: 26px;
+  }
+
+  .tracking-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin-top: 22px;
+    justify-content: end;
   }
 
   .tracking-actions {

@@ -178,7 +178,8 @@
 
 @media (min-width: 1024px) {
   .confirmation-page {
-    max-width: var(--desktop-narrow-width);
+    width: 100%;
+    max-width: none;
     margin: 0 auto;
     padding: 36px 48px 56px;
   }
@@ -222,6 +223,7 @@
   }
 
   .confirmation-actions {
+    display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 

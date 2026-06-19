@@ -245,9 +245,10 @@
 
 @media (min-width: 1024px) {
   .profile-page {
-    max-width: var(--desktop-page-width);
+    width: 100%;
+    max-width: none;
     margin: 0 auto;
-    padding: 36px 48px 56px;
+    padding: 40px clamp(24px, 5vw, 72px) 64px;
     display: grid;
     grid-template-columns: 380px minmax(0, 1fr);
     gap: 24px;

@@ -330,7 +330,8 @@
 
 @media (min-width: 1024px) {
   .history-page {
-    max-width: var(--desktop-page-width);
+    width: 100%;
+    max-width: none;
     margin: 0 auto;
     padding: 36px 48px 56px;
   }
@@ -379,14 +380,14 @@
   }
 
   .detail-card {
-    max-width: var(--desktop-narrow-width);
     padding: 28px;
     border-radius: 28px;
   }
 
   .detail-actions {
+    display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    max-width: var(--desktop-narrow-width);
+    gap: 12px;
     margin-top: 22px;
   }
 
