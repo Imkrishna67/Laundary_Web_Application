@@ -1,16 +1,19 @@
 import cors from 'cors'
 import express from 'express'
+import mongoose from 'mongoose'
+import bcrypt from 'bcryptjs'
+import dotenv from 'dotenv'
+import User from './models/User.js'
+
+dotenv.config()
 
 const app = express()
 const port = process.env.PORT || 5000
 
-const registeredUsers = [
-  {
-    fullName: 'QuickWash Demo User',
-    identifiers: ['quickwash@example.com', '9876543210'],
-    password: 'QuickWash@123',
-  },
-]
+// MongoDB Connect
+mongoose.connect(process.env.MONGO_URI)
+  .then(() => console.log('✅ MongoDB Connected'))
+  .catch((err) => console.log('❌ MongoDB Error:', err))
 
 function normalizeIdentifier(value) {
   return String(value || '').trim().toLowerCase()
@@ -30,15 +33,12 @@ function validateRegisterPayload(payload) {
   if (fullName.length < 2) {
     errors.fullName = 'Full name must be at least 2 characters.'
   }
-
   if (!/^[6-9]\d{9}$/.test(mobile)) {
     errors.mobile = 'Enter a valid 10-digit mobile number.'
   }
-
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
     errors.email = 'Enter a valid email address.'
   }
-
   if (password.length < 6) {
     errors.password = 'Password must be at least 6 characters.'
   }
@@ -46,24 +46,19 @@ function validateRegisterPayload(payload) {
   return {
     isValid: Object.keys(errors).length === 0,
     errors,
-    normalizedUser: {
-      fullName,
-      mobile,
-      email,
-      password,
-      identifiers: [mobile, email],
-    },
+    normalizedUser: { fullName, mobile, email, password },
   }
 }
 
-app.use(cors({ origin: ['http://localhost:5173', 'http://127.0.0.1:5173'] }))
+app.use(cors({ origin: ['http://localhost:5173', 'http://127.0.0.1:5173', 'http://localhost:5174', 'http://127.0.0.1:5174'] }))
 app.use(express.json())
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok' })
 })
 
-app.post('/api/auth/register', (req, res) => {
+// REGISTER
+app.post('/api/auth/register', async (req, res) => {
   const validation = validateRegisterPayload(req.body)
 
   if (!validation.isValid) {
@@ -71,35 +66,40 @@ app.post('/api/auth/register', (req, res) => {
     return res.status(400).json({ message: firstError })
   }
 
-  const { fullName, identifiers, email, mobile } = validation.normalizedUser
-  const isDuplicate = registeredUsers.some((user) =>
-    user.identifiers.some((identifier) => identifiers.includes(identifier)),
-  )
+  const { fullName, mobile, email, password } = validation.normalizedUser
 
-  if (isDuplicate) {
-    return res.status(409).json({
-      message: 'An account with this email or mobile number already exists.',
-    })
-  }
+  try {
+    const existingUser = await User.findOne({ $or: [{ email }, { mobile }] })
 
-  registeredUsers.push({
-    fullName,
-    identifiers,
-    password: validation.normalizedUser.password,
-    createdAt: new Date().toISOString(),
-  })
+    if (existingUser) {
+      return res.status(409).json({
+        message: 'An account with this email or mobile number already exists.',
+      })
+    }
 
-  return res.status(201).json({
-    message: 'Account created successfully. You can login now.',
-    user: {
+    const hashedPassword = await bcrypt.hash(password, 10)
+
+    const newUser = new User({
       fullName,
-      email,
       mobile,
-    },
-  })
+      email,
+      password: hashedPassword,
+    })
+
+    await newUser.save()
+
+    return res.status(201).json({
+      message: 'Account created successfully. You can login now.',
+      user: { fullName, email, mobile },
+    })
+  } catch (err) {
+    console.error(err)
+    return res.status(500).json({ message: 'Server error. Please try again.' })
+  }
 })
 
-app.post('/api/auth/login', (req, res) => {
+// LOGIN
+app.post('/api/auth/login', async (req, res) => {
   const { password } = req.body
   const normalizedIdentifier = normalizeIdentifier(req.body.identifier)
 
@@ -107,23 +107,32 @@ app.post('/api/auth/login', (req, res) => {
     return res.status(400).json({ message: 'Mobile/email and password are required.' })
   }
 
-  const matchedUser = registeredUsers.find(
-    (user) => user.identifiers.includes(normalizedIdentifier) && user.password === password,
-  )
-
-  if (!matchedUser) {
-    return res.status(401).json({
-      message: 'Invalid credentials. Try quickwash@example.com / QuickWash@123 or 9876543210 / QuickWash@123.',
+  try {
+    const matchedUser = await User.findOne({
+      $or: [{ email: normalizedIdentifier }, { mobile: normalizedIdentifier }],
     })
-  }
 
-  return res.json({
-    message: 'Login successful! Welcome to QuickWash.',
-    user: {
-      fullName: matchedUser.fullName,
-      identifier: matchedUser.identifiers[0],
-    },
-  })
+    if (!matchedUser) {
+      return res.status(401).json({ message: 'Invalid credentials.' })
+    }
+
+    const isPasswordCorrect = await bcrypt.compare(password, matchedUser.password)
+
+    if (!isPasswordCorrect) {
+      return res.status(401).json({ message: 'Invalid credentials.' })
+    }
+
+    return res.json({
+      message: 'Login successful! Welcome to QuickWash.',
+      user: {
+        fullName: matchedUser.fullName,
+        identifier: matchedUser.email,
+      },
+    })
+  } catch (err) {
+    console.error(err)
+    return res.status(500).json({ message: 'Server error. Please try again.' })
+  }
 })
 
 app.listen(port, () => {
