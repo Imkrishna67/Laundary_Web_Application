@@ -3,138 +3,97 @@ import express from 'express'
 import mongoose from 'mongoose'
 import bcrypt from 'bcryptjs'
 import dotenv from 'dotenv'
+import path from 'path'
+import { fileURLToPath } from 'url'
 import User from './models/User.js'
 
 dotenv.config()
 
 const app = express()
-const port = process.env.PORT || 5000
+const port = process.env.PORT || 10000
 
-// MongoDB Connect
+// __dirname setup (IMPORTANT for ES modules)
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+
+// Middleware
+app.use(express.json())
+
+app.use(cors())
+
+// MongoDB
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('✅ MongoDB Connected'))
   .catch((err) => console.log('❌ MongoDB Error:', err))
 
-function normalizeIdentifier(value) {
-  return String(value || '').trim().toLowerCase()
-}
+// ---------------- ROUTES ----------------
 
-function normalizeMobile(value) {
-  return String(value || '').replace(/\D/g, '')
-}
+// Root
+app.get("/", (req, res) => {
+  res.send("QuickWash Full App Running 🚀")
+})
 
-function validateRegisterPayload(payload) {
-  const fullName = String(payload.fullName || '').trim()
-  const mobile = normalizeMobile(payload.mobile)
-  const email = normalizeIdentifier(payload.email)
-  const password = String(payload.password || '')
-  const errors = {}
-
-  if (fullName.length < 2) {
-    errors.fullName = 'Full name must be at least 2 characters.'
-  }
-  if (!/^[6-9]\d{9}$/.test(mobile)) {
-    errors.mobile = 'Enter a valid 10-digit mobile number.'
-  }
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
-    errors.email = 'Enter a valid email address.'
-  }
-  if (password.length < 6) {
-    errors.password = 'Password must be at least 6 characters.'
-  }
-
-  return {
-    isValid: Object.keys(errors).length === 0,
-    errors,
-    normalizedUser: { fullName, mobile, email, password },
-  }
-}
-
-app.use(cors({ origin: ['http://localhost:5173', 'http://127.0.0.1:5173', 'http://localhost:5174', 'http://127.0.0.1:5174'] }))
-app.use(express.json())
-
-app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok' })
+// Health
+app.get("/api/health", (req, res) => {
+  res.json({ status: "ok" })
 })
 
 // REGISTER
 app.post('/api/auth/register', async (req, res) => {
-  const validation = validateRegisterPayload(req.body)
-
-  if (!validation.isValid) {
-    const firstError = Object.values(validation.errors)[0]
-    return res.status(400).json({ message: firstError })
-  }
-
-  const { fullName, mobile, email, password } = validation.normalizedUser
-
   try {
-    const existingUser = await User.findOne({ $or: [{ email }, { mobile }] })
-
-    if (existingUser) {
-      return res.status(409).json({
-        message: 'An account with this email or mobile number already exists.',
-      })
-    }
+    const { fullName, mobile, email, password } = req.body
 
     const hashedPassword = await bcrypt.hash(password, 10)
 
-    const newUser = new User({
+    const user = new User({
       fullName,
       mobile,
       email,
-      password: hashedPassword,
+      password: hashedPassword
     })
 
-    await newUser.save()
+    await user.save()
 
-    return res.status(201).json({
-      message: 'Account created successfully. You can login now.',
-      user: { fullName, email, mobile },
-    })
+    res.json({ message: "User created" })
+
   } catch (err) {
-    console.error(err)
-    return res.status(500).json({ message: 'Server error. Please try again.' })
+    res.status(500).json({ error: err.message })
   }
 })
 
 // LOGIN
 app.post('/api/auth/login', async (req, res) => {
-  const { password } = req.body
-  const normalizedIdentifier = normalizeIdentifier(req.body.identifier)
-
-  if (!normalizedIdentifier || !password) {
-    return res.status(400).json({ message: 'Mobile/email and password are required.' })
-  }
-
   try {
-    const matchedUser = await User.findOne({
-      $or: [{ email: normalizedIdentifier }, { mobile: normalizedIdentifier }],
+    const { identifier, password } = req.body
+
+    const user = await User.findOne({
+      $or: [{ email: identifier }, { mobile: identifier }]
     })
 
-    if (!matchedUser) {
-      return res.status(401).json({ message: 'Invalid credentials.' })
-    }
+    if (!user) return res.status(400).json({ message: "User not found" })
 
-    const isPasswordCorrect = await bcrypt.compare(password, matchedUser.password)
+    const match = await bcrypt.compare(password, user.password)
 
-    if (!isPasswordCorrect) {
-      return res.status(401).json({ message: 'Invalid credentials.' })
-    }
+    if (!match) return res.status(400).json({ message: "Wrong password" })
 
-    return res.json({
-      message: 'Login successful! Welcome to QuickWash.',
-      user: {
-        fullName: matchedUser.fullName,
-        identifier: matchedUser.email,
-      },
-    })
+    res.json({ message: "Login success", user })
+
   } catch (err) {
-    console.error(err)
-    return res.status(500).json({ message: 'Server error. Please try again.' })
+    res.status(500).json({ error: err.message })
   }
 })
 
-app.listen(port, () => {
-  console.log(`QuickWash API running on http://localhost:${port}`)
+// ---------------- FRONTEND SERVE ----------------
+
+// serve frontend build
+app.use(express.static(path.join(__dirname, "../dist")))
+
+// fallback route
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "../dist/index.html"))
+})
+
+// ---------------- START ----------------
+app.listen(port, "0.0.0.0", () => {
+  console.log(`Server running on port ${port}`)
 })
