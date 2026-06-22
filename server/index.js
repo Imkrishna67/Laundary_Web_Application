@@ -12,30 +12,29 @@ dotenv.config()
 const app = express()
 const port = process.env.PORT || 10000
 
-// __dirname setup (IMPORTANT for ES modules)
+// __dirname fix (ES modules)
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-// Middleware
+// middleware
 app.use(express.json())
-
 app.use(cors())
 
-// MongoDB
+// MongoDB connect
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('✅ MongoDB Connected'))
   .catch((err) => console.log('❌ MongoDB Error:', err))
 
 // ---------------- ROUTES ----------------
 
-// Root
-app.get("/", (req, res) => {
-  res.send("QuickWash Full App Running 🚀")
-})
-
-// Health
+// health check
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok" })
+})
+
+// root
+app.get("/", (req, res) => {
+  res.send("QuickWash Backend Running 🚀")
 })
 
 // REGISTER
@@ -54,7 +53,7 @@ app.post('/api/auth/register', async (req, res) => {
 
     await user.save()
 
-    res.json({ message: "User created" })
+    res.json({ message: "User registered successfully" })
 
   } catch (err) {
     res.status(500).json({ error: err.message })
@@ -70,13 +69,24 @@ app.post('/api/auth/login', async (req, res) => {
       $or: [{ email: identifier }, { mobile: identifier }]
     })
 
-    if (!user) return res.status(400).json({ message: "User not found" })
+    if (!user) {
+      return res.status(400).json({ message: "User not found" })
+    }
 
     const match = await bcrypt.compare(password, user.password)
 
-    if (!match) return res.status(400).json({ message: "Wrong password" })
+    if (!match) {
+      return res.status(400).json({ message: "Wrong password" })
+    }
 
-    res.json({ message: "Login success", user })
+    res.json({
+      message: "Login successful",
+      user: {
+        fullName: user.fullName,
+        email: user.email,
+        mobile: user.mobile
+      }
+    })
 
   } catch (err) {
     res.status(500).json({ error: err.message })
@@ -85,11 +95,11 @@ app.post('/api/auth/login', async (req, res) => {
 
 // ---------------- FRONTEND SERVE ----------------
 
-// serve frontend build
+// serve frontend build (Vite dist)
 app.use(express.static(path.join(__dirname, "../dist")))
 
-// fallback route
-app.get("*", (req, res) => {
+// fallback route (FIXED - no '*' error)
+app.get("/*", (req, res) => {
   res.sendFile(path.join(__dirname, "../dist/index.html"))
 })
 
