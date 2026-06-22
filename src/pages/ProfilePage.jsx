@@ -6,6 +6,30 @@ function ProfilePage() {
   const navigate = useNavigate()
   const [notifications, setNotifications] = useState(true)
   const [language, setLanguage] = useState('English')
+  const [toast, setToast] = useState({ show: false, text: '' })
+
+  function showToast(text) {
+    setToast({ show: true, text })
+    setTimeout(() => setToast({ show: false, text: '' }), 3000)
+  }
+
+  function handleEditProfile() {
+    showToast('Profile editing coming in next update.')
+  }
+
+  function handlePaymentMethods() {
+    showToast('Payment methods will be available soon.')
+  }
+
+  function handleHelpSupport() {
+    showToast('Support: +91 1800-123-4567 | support@quickwash.in')
+  }
+
+  function handleLogout() {
+    localStorage.removeItem('quickwashUser')
+    showToast('Logged out successfully.')
+    setTimeout(() => navigate('/'), 1000)
+  }
 
   return (
     <main className="profile-page">
@@ -14,6 +38,10 @@ function ProfilePage() {
         <h1>Profile</h1>
       </header>
 
+      {toast.show && (
+        <div className="profile-toast" role="status">{toast.text}</div>
+      )}
+
       <section className="profile-card">
         <div className="profile-avatar">JD</div>
         <div className="profile-info">
@@ -21,7 +49,7 @@ function ProfilePage() {
           <p>+91 98765 43210</p>
           <p>john.doe@example.com</p>
         </div>
-        <button type="button" className="edit-profile-button" onClick={() => alert('Edit Profile feature coming soon')}>
+        <button type="button" className="edit-profile-button" onClick={handleEditProfile}>
           Edit Profile
         </button>
       </section>
@@ -39,7 +67,7 @@ function ProfilePage() {
           <span className="menu-arrow">›</span>
         </button>
 
-        <button type="button" className="menu-item" onClick={() => alert('Payment Methods feature coming soon')}>
+        <button type="button" className="menu-item" onClick={handlePaymentMethods}>
           <span className="menu-icon">💳</span>
           <span className="menu-text">Payment Methods</span>
           <span className="menu-arrow">›</span>
@@ -70,13 +98,13 @@ function ProfilePage() {
       </section>
 
       <section className="menu-section">
-        <button type="button" className="menu-item" onClick={() => alert('Help & Support: +91 1800-123-4567\nEmail: support@quickwash.in')}>
+        <button type="button" className="menu-item" onClick={handleHelpSupport}>
           <span className="menu-icon">❓</span>
           <span className="menu-text">Help & Support</span>
           <span className="menu-arrow">›</span>
         </button>
 
-        <button type="button" className="menu-item logout" onClick={() => navigate('/')}>
+        <button type="button" className="menu-item logout" onClick={handleLogout}>
           <span className="menu-icon">🚪</span>
           <span className="menu-text">Logout</span>
         </button>

@@ -79,10 +79,43 @@ function getUserName() {
   }
 }
 
+function readLastOrder() {
+  try {
+    const stored = localStorage.getItem('quickwashLastOrder')
+    return stored ? JSON.parse(stored) : null
+  } catch {
+    return null
+  }
+}
+
+function formatOrderDate(isoString) {
+  if (!isoString) return ''
+  const date = new Date(isoString)
+  return date.toLocaleDateString('en-IN', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  })
+}
+
+function getOrderItemCount(order) {
+  if (!order?.services) return 0
+  return order.services.reduce((count, service) => count + (service.quantity || 0), 0)
+}
+
 function HomePage() {
   const navigate = useNavigate()
   const [searchText, setSearchText] = useState('')
   const [activeSlide, setActiveSlide] = useState(0)
+  const [pickupScheduled, setPickupScheduled] = useState(() => {
+    try {
+      return localStorage.getItem('quickwashPickupChecked') === 'true'
+    } catch {
+      return false
+    }
+  })
+  const lastOrder = readLastOrder()
+  const orderItemCount = getOrderItemCount(lastOrder)
 
   useEffect(() => {
     const timer = window.setInterval(() => {
@@ -113,10 +146,10 @@ function HomePage() {
           <button className="icon-button" type="button" aria-label="Cart" onClick={() => navigate('/cart')}>
             <CartIcon />
           </button>
-          <button className="icon-button" type="button" aria-label="Notifications">
+          <button className="icon-button" type="button" aria-label="Notifications" onClick={() => navigate('/orders')}>
             <BellIcon />
           </button>
-          <button className="icon-button" type="button" aria-label="Profile">
+          <button className="icon-button" type="button" aria-label="Profile" onClick={() => navigate('/profile')}>
             <ProfileIcon />
           </button>
         </div>
@@ -154,7 +187,7 @@ function HomePage() {
       <section aria-labelledby="services-title">
         <div className="section-header">
           <h2 id="services-title">Services</h2>
-          <button className="see-all" type="button">
+          <button className="see-all" type="button" onClick={() => navigate('/services')}>
             See all
           </button>
         </div>
@@ -186,32 +219,54 @@ function HomePage() {
         ) : null}
       </section>
 
-      <section className="active-order-card" aria-labelledby="active-order-title">
-        <div className="order-top">
-          <div>
-            <h2 id="active-order-title">Active Order</h2>
-            <p className="order-meta">Order #QW-2048 · 5 kg laundry</p>
+      {lastOrder && (
+        <section className="active-order-card" aria-labelledby="active-order-title">
+          <div className="order-top">
+            <div>
+              <h2 id="active-order-title">Active Order</h2>
+              <p className="order-meta">
+                Order #{lastOrder.id} · {orderItemCount} item{orderItemCount !== 1 ? 's' : ''}
+              </p>
+            </div>
+            <span className="status-pill">In Progress</span>
           </div>
-          <span className="status-pill">Pickup Today</span>
-        </div>
 
-        <div className="order-timeline">
-          <label className="timeline-item active">
-            <input className="timeline-checkbox" type="checkbox" readOnly />
-            <div>
-              <h3>Pickup scheduled</h3>
-              <p>Today, 6:00 PM - 8:00 PM</p>
-            </div>
-          </label>
-          <label className="timeline-item in-progress">
-            <input className="timeline-checkbox" type="checkbox" readOnly />
-            <div>
-              <h3>Washing in progress</h3>
-              <p>Expected tomorrow by 7:00 PM</p>
-            </div>
-          </label>
-        </div>
-      </section>
+          <div className="order-timeline">
+            <label className="timeline-item active">
+              <input
+                className="timeline-checkbox"
+                type="checkbox"
+                checked={pickupScheduled}
+                disabled={pickupScheduled}
+                readOnly
+              />
+              <div>
+                <h3>Pickup scheduled</h3>
+                <p>
+                  {lastOrder.schedule?.pickupDate
+                    ? `${formatOrderDate(lastOrder.schedule.pickupDate)} · ${lastOrder.schedule.pickupSlot?.split(' · ')[0] || 'Slot pending'}`
+                    : 'Pickup pending'}
+                </p>
+              </div>
+            </label>
+            <label className="timeline-item in-progress">
+              <input className="timeline-checkbox" type="checkbox" readOnly />
+              <div>
+                <h3>Washing in progress</h3>
+                <p>
+                  {lastOrder.schedule?.deliveryDate
+                    ? `Expected by ${formatOrderDate(lastOrder.schedule.deliveryDate)}`
+                    : 'Expected soon'}
+                </p>
+              </div>
+            </label>
+          </div>
+
+          <button className="view-order-button" type="button" onClick={() => navigate('/track-order')}>
+            View Active Order
+          </button>
+        </section>
+      )}
 
       <button className="pickup-button" type="button" onClick={() => navigate('/services')}>
         Book a Pickup
@@ -222,15 +277,15 @@ function HomePage() {
           <HomeIcon />
           Home
         </button>
-        <button type="button" aria-label="Orders">
+        <button type="button" aria-label="Orders" onClick={() => navigate('/orders')}>
           <OrdersIcon />
           Orders
         </button>
-        <button type="button" aria-label="Schedule">
+        <button type="button" aria-label="Schedule" onClick={() => navigate('/schedule')}>
           <ScheduleIcon />
           Schedule
         </button>
-        <button type="button" aria-label="Profile">
+        <button type="button" aria-label="Profile" onClick={() => navigate('/profile')}>
           <ProfileSmallIcon />
           Profile
         </button>

@@ -1,15 +1,8 @@
 body {
   background:
-    radial-gradient(circle at 8% 8%, rgba(24, 167, 255, 0.18), transparent 32rem),
-    radial-gradient(circle at 92% 12%, rgba(93, 124, 255, 0.14), transparent 30rem),
-    linear-gradient(135deg, var(--background-soft) 0%, var(--background) 52%, var(--surface-muted) 100%);
-}
-
-[data-theme='dark'] body {
-  background:
-    radial-gradient(circle at 8% 8%, rgba(56, 189, 248, 0.16), transparent 34rem),
-    radial-gradient(circle at 92% 12%, rgba(167, 139, 250, 0.13), transparent 32rem),
-    linear-gradient(135deg, #08101f 0%, var(--background) 58%, #0d1626 100%);
+    radial-gradient(circle at 8% 8%, rgba(79, 142, 247, 0.2), transparent 34rem),
+    radial-gradient(circle at 92% 88%, rgba(139, 92, 246, 0.16), transparent 32rem),
+    linear-gradient(135deg, var(--background-sunken) 0%, var(--background) 52%, var(--surface-raised) 100%);
 }
 
 .home-page,
@@ -23,27 +16,13 @@ body {
 .service-page,
 .profile-page {
   background:
-    radial-gradient(circle at 8% 8%, rgba(24, 167, 255, 0.18), transparent 32rem),
-    radial-gradient(circle at 92% 12%, rgba(93, 124, 255, 0.14), transparent 30rem),
-    linear-gradient(135deg, var(--background-soft) 0%, var(--background) 52%, var(--surface-muted) 100%);
+    radial-gradient(circle at 8% 8%, rgba(79, 142, 247, 0.2), transparent 34rem),
+    radial-gradient(circle at 92% 88%, rgba(139, 92, 246, 0.16), transparent 32rem),
+    linear-gradient(135deg, var(--background-sunken) 0%, var(--background) 52%, var(--surface-raised) 100%);
 }
 
-[data-theme='dark'] .home-page,
-[data-theme='dark'] .login-page,
-[data-theme='dark'] .cart-page,
-[data-theme='dark'] .address-page,
-[data-theme='dark'] .schedule-page,
-[data-theme='dark'] .history-page,
-[data-theme='dark'] .tracking-page,
-[data-theme='dark'] .confirmation-page,
-[data-theme='dark'] .service-page,
-[data-theme='dark'] .profile-page {
-  background:
-    radial-gradient(circle at 8% 8%, rgba(56, 189, 248, 0.16), transparent 34rem),
-    radial-gradient(circle at 92% 12%, rgba(167, 139, 250, 0.13), transparent 32rem),
-    linear-gradient(135deg, #08101f 0%, var(--background) 58%, #0d1626 100%);
-}
-
+.surface,
+.surface-muted,
 .login-card,
 .profile-card,
 .menu-section,
@@ -69,37 +48,37 @@ body {
 .service-list-card,
 .no-results,
 .placeholder-card {
-  background: var(--panel-soft);
+  background: var(--surface);
   border: 1px solid var(--border);
-  box-shadow: var(--card-shadow);
-  backdrop-filter: blur(22px);
+  box-shadow: var(--shadow-md);
+  backdrop-filter: blur(20px);
 }
 
 .icon-button,
 .back-button,
+.google-button,
+.category-tab,
+.slot-button,
+.add-button,
+.quantity-button,
 .address-back-button,
 .schedule-back-button,
 .edit-profile-button,
 .secondary-button,
 .home-button,
-.google-button,
 .current-location-button,
 .add-address-button,
-.category-tab,
-.slot-button,
-.add-button,
 .quantity-control,
-.quantity-button,
 .reorder-button,
 .help-button,
 .icon-action-button,
 .remove-button,
 .bottom-nav,
 .service-bottom-bar {
-  background: var(--glass);
+  background: var(--surface);
   border: 1px solid var(--border);
-  box-shadow: var(--soft-shadow);
-  backdrop-filter: blur(18px);
+  box-shadow: var(--shadow-sm);
+  backdrop-filter: blur(20px);
 }
 
 .field-group input,
@@ -110,10 +89,9 @@ body {
 .promo-form input,
 .search-card input,
 textarea {
-  background: var(--input);
+  background: var(--surface);
   border: 1px solid var(--border);
   color: var(--text);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease, transform 0.2s ease;
 }
 
 .field-group input:focus,
@@ -125,19 +103,19 @@ textarea {
 .search-card input:focus,
 textarea:focus {
   border-color: var(--primary);
-  background: var(--glass-strong);
-  box-shadow: 0 0 0 4px rgba(24, 167, 255, 0.13);
+  background: var(--surface);
+  box-shadow: 0 0 0 4px rgba(79, 142, 247, 0.12);
 }
 
-[data-theme='dark'] .field-group input:focus,
-[data-theme='dark'] .address-input:focus,
-[data-theme='dark'] .address-textarea:focus,
-[data-theme='dark'] .date-input:focus,
-[data-theme='dark'] .instructions-input:focus,
-[data-theme='dark'] .promo-form input:focus,
-[data-theme='dark'] .search-card input:focus,
-[data-theme='dark'] textarea:focus {
-  box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.14);
+.field-group input::placeholder,
+.address-input::placeholder,
+.address-textarea::placeholder,
+.date-input::placeholder,
+.instructions-input::placeholder,
+.promo-form input::placeholder,
+.search-card input::placeholder,
+textarea::placeholder {
+  color: var(--text-muted);
 }
 
 .primary-button,
@@ -149,14 +127,60 @@ textarea:focus {
 .view-cart-button,
 .category-tab.active,
 .slot-button.active {
+  position: relative;
+  overflow: hidden;
   background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
   border-color: transparent;
-  color: #ffffff;
-  box-shadow: var(--button-shadow);
+  color: var(--primary-on);
+  box-shadow: var(--shadow-glow-primary);
 }
 
-button {
-  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease, background 0.18s ease, color 0.18s ease;
+.primary-button::before,
+.pickup-button::before,
+.confirm-button::before,
+.save-button::before,
+.proceed-button::before,
+.track-button::before,
+.view-cart-button::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 0%, rgba(255, 255, 255, 0.2) 45%, transparent 70%);
+  transform: translateX(-120%);
+  pointer-events: none;
+}
+
+.primary-button:hover::before,
+.pickup-button:hover::before,
+.confirm-button:hover::before,
+.save-button:hover::before,
+.proceed-button:hover::before,
+.track-button:hover::before,
+.view-cart-button:hover::before {
+  transform: translateX(120%);
+}
+
+.primary-button:active,
+.pickup-button:active,
+.confirm-button:active,
+.save-button:active,
+.proceed-button:active,
+.track-button:active,
+.view-cart-button:active,
+.icon-button:active,
+.back-button:active,
+.google-button:active,
+.category-tab:active,
+.slot-button:active,
+.add-button:active,
+.quantity-button:active {
+  transform: scale(0.97);
+}
+
+*,
+*::before,
+*::after {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 @media (hover: hover) {
@@ -166,9 +190,26 @@ button {
   .service-list-card:hover,
   .address-option:hover,
   .menu-item:hover,
-  .setting-item:hover {
+  .setting-item:hover,
+  .login-card:hover,
+  .profile-card:hover,
+  .search-card:hover,
+  .summary-card:hover,
+  .status-card:hover,
+  .timeline-card:hover,
+  .partner-card:hover,
+  .details-card:hover,
+  .detail-card:hover,
+  .cart-summary-card:hover,
+  .promo-card:hover,
+  .empty-cart:hover,
+  .address-card:hover,
+  .schedule-card:hover,
+  .confirmation-card:hover,
+  .no-results:hover,
+  .placeholder-card:hover {
     transform: translateY(-2px);
-    box-shadow: var(--card-shadow);
+    box-shadow: var(--shadow-lg);
   }
 
   .primary-button:not(:disabled):hover,
@@ -180,15 +221,11 @@ button {
   .view-cart-button:not(:disabled):hover,
   .icon-button:hover,
   .back-button:hover,
-  .address-back-button:hover,
-  .schedule-back-button:hover,
   .google-button:hover,
-  .current-location-button:hover,
-  .add-address-button:hover,
-  .reorder-button:hover,
-  .help-button:hover,
-  .icon-action-button:hover,
-  .remove-button:hover {
+  .category-tab:hover,
+  .slot-button:hover,
+  .add-button:hover,
+  .quantity-button:hover {
     transform: translateY(-1px);
   }
 }
@@ -210,53 +247,6 @@ button {
 .service-header h1,
 .profile-header h1 {
   letter-spacing: -0.04em;
-}
-
-.primary-button,
-.pickup-button,
-.confirm-button,
-.save-button,
-.proceed-button,
-.track-button,
-.view-cart-button {
-  position: relative;
-  overflow: hidden;
-}
-
-.primary-button::before,
-.pickup-button::before,
-.confirm-button::before,
-.save-button::before,
-.proceed-button::before,
-.track-button::before,
-.view-cart-button::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(110deg, transparent 0%, rgba(255, 255, 255, 0.22) 42%, transparent 68%);
-  transform: translateX(-120%);
-  transition: transform 0.7s ease;
-  pointer-events: none;
-}
-
-.primary-button:hover::before,
-.pickup-button:hover::before,
-.confirm-button:hover::before,
-.save-button:hover::before,
-.proceed-button:hover::before,
-.track-button:hover::before,
-.view-cart-button:hover::before {
-  transform: translateX(120%);
-}
-
-.service-card,
-.cart-item,
-.address-option,
-.order-card,
-.service-list-card,
-.menu-item,
-.setting-item {
-  border-radius: 24px;
 }
 
 .section-header,

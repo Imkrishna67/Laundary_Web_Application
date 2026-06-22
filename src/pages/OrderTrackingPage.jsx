@@ -2,21 +2,6 @@ import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import '../order-tracking.css'
 
-const serviceCatalog = [
-  { id: 'regular-wash', name: 'Regular Wash', price: 80 },
-  { id: 'premium-wash', name: 'Premium Wash', price: 120 },
-  { id: 'blanket-wash', name: 'Blanket Wash', price: 250 },
-  { id: 'shirt-dry-clean', name: 'Shirt Dry Clean', price: 80 },
-  { id: 'suit-dry-clean', name: 'Suit Dry Clean', price: 350 },
-  { id: 'dress-dry-clean', name: 'Dress Dry Clean', price: 250 },
-  { id: 'shirt-iron', name: 'Shirt Iron', price: 40 },
-  { id: 'pant-iron', name: 'Pant Iron', price: 50 },
-  { id: 'saree-iron', name: 'Saree Iron', price: 120 },
-  { id: 'leather-jacket', name: 'Leather Jacket', price: 800 },
-  { id: 'comforter-care', name: 'Comforter Care', price: 900 },
-  { id: 'sneaker-clean', name: 'Sneaker Clean', price: 399 },
-]
-
 const STATUS_STEPS = [
   { id: 'placed', label: 'Order Placed', icon: '📝' },
   { id: 'picked-up', label: 'Picked Up', icon: '🚚' },
@@ -31,21 +16,41 @@ function OrderTrackingPage() {
   const [expanded, setExpanded] = useState(false)
   const order = useMemo(() => readTrackingOrder(), [])
 
-  const currentStatusIndex = STATUS_STEPS.findIndex((step) => step.id === order.currentStatus)
+  const currentStatusIndex = STATUS_STEPS.findIndex((step) => step.id === order.status)
   const currentStep = STATUS_STEPS[currentStatusIndex] || STATUS_STEPS[0]
+
+  if (!order) {
+    return (
+      <main className="tracking-page">
+        <header className="tracking-header">
+          <h1>Track Order</h1>
+        </header>
+        <div className="empty-state">
+          <p>No active order to track.</p>
+          <button className="back-button" type="button" onClick={() => navigate('/services')}>
+            Book a Service
+          </button>
+        </div>
+      </main>
+    )
+  }
 
   return (
     <main className="tracking-page">
       <header className="tracking-header">
+        <button className="back-button" type="button" onClick={() => navigate('/home')} aria-label="Go back">
+          ← Back
+        </button>
         <h1>Track Order</h1>
-        <div className="order-id-badge">Order ID: {order.orderId}</div>
+        <div className="order-id-badge">Order ID: {order.id}</div>
       </header>
 
       <section className="status-card" aria-labelledby="current-status-label">
         <div className="current-status-icon">{currentStep.icon}</div>
         <h2 id="current-status-label">{currentStep.label}</h2>
         <p className="estimated-delivery">
-          Estimated Delivery: <strong>{order.estimatedDelivery}</strong>
+          {order.status === 'delivered' ? 'Delivered' : `Estimated Delivery:`}{' '}
+          <strong>{order.status === 'delivered' ? formatDate(order.updatedAt) : formatDate(order.schedule?.deliveryDate)}</strong>
         </p>
       </section>
 
@@ -54,18 +59,26 @@ function OrderTrackingPage() {
           {STATUS_STEPS.map((step, index) => {
             const isCompleted = index <= currentStatusIndex
             const isCurrent = index === currentStatusIndex
-            const dotClass = [
-              'timeline-dot',
-              isCompleted ? 'completed' : '',
-              isCurrent ? 'current' : '',
-            ]
-              .filter(Boolean)
-              .join(' ')
 
             return (
-              <div className={`timeline-step ${isCompleted ? 'completed' : ''} ${isCurrent ? 'current' : ''}`} key={step.id}>
-                <div className={dotClass}>
-                  {isCompleted && !isCurrent ? <span className="check-icon">✓</span> : <span className="step-icon">{step.icon}</span>}
+              <div
+                className={`timeline-step ${isCompleted ? 'completed' : ''} ${isCurrent ? 'current' : ''}`}
+                key={step.id}
+              >
+                <div
+                  className={[
+                    'timeline-dot',
+                    isCompleted ? 'completed' : '',
+                    isCurrent ? 'current' : '',
+                  ]
+                    .filter(Boolean)
+                    .join(' ')}
+                >
+                  {isCompleted && !isCurrent ? (
+                    <span className="check-icon">✓</span>
+                  ) : (
+                    <span className="step-icon">{step.icon}</span>
+                  )}
                 </div>
                 <span className="timeline-label">{step.label}</span>
                 {index < STATUS_STEPS.length - 1 && (
@@ -126,54 +139,57 @@ function OrderTrackingPage() {
 
         {expanded && (
           <div className="collapsible-content">
-            <div className="details-section">
-              <h4>Services</h4>
-              {order.services.map((service) => (
-                <div className="detail-row" key={service.id}>
-                  <span>
-                    <strong>{service.name}</strong> × {service.quantity}
-                  </span>
-                  <span>₹{service.lineTotal}</span>
+            {order.services && order.services.length > 0 ? (
+              <div className="details-section">
+                <h4>Services</h4>
+                {order.services.map((service) => (
+                  <div className="detail-row" key={service.id}>
+                    <span>
+                      <strong>{service.name}</strong> × {service.quantity}
+                    </span>
+                    <span>₹{service.price * service.quantity}</span>
+                  </div>
+                ))}
+              </div>
+            ) : null}
+
+            {order.schedule && (
+              <>
+                <div className="details-section">
+                  <h4>Pickup</h4>
+                  <div className="detail-row">
+                    <span>Date</span>
+                    <strong>{formatDate(order.schedule.pickupDate)}</strong>
+                  </div>
+                  <div className="detail-row">
+                    <span>Slot</span>
+                    <strong>{order.schedule.pickupSlot}</strong>
+                  </div>
                 </div>
-              ))}
-            </div>
 
-            <div className="details-section">
-              <h4>Pickup</h4>
-              <div className="detail-row">
-                <span>Date</span>
-                <strong>{formatDate(order.schedule.pickupDate)}</strong>
-              </div>
-              <div className="detail-row">
-                <span>Slot</span>
-                <strong>{order.schedule.pickupSlot}</strong>
-              </div>
-            </div>
-
-            <div className="details-section">
-              <h4>Delivery</h4>
-              <div className="detail-row">
-                <span>Date</span>
-                <strong>{formatDate(order.schedule.deliveryDate)}</strong>
-              </div>
-              <div className="detail-row">
-                <span>Slot</span>
-                <strong>{order.schedule.deliverySlot}</strong>
-              </div>
-            </div>
+                <div className="details-section">
+                  <h4>Delivery</h4>
+                  <div className="detail-row">
+                    <span>Date</span>
+                    <strong>{formatDate(order.schedule.deliveryDate)}</strong>
+                  </div>
+                  <div className="detail-row">
+                    <span>Slot</span>
+                    <strong>{order.schedule.deliverySlot}</strong>
+                  </div>
+                </div>
+              </>
+            )}
 
             <div className="details-total">
               <span>Total Amount</span>
-              <strong>₹{order.totals.total}</strong>
+              <strong>₹{order.total}</strong>
             </div>
           </div>
         )}
       </section>
 
       <div className="tracking-actions">
-        <button type="button" className="back-button" onClick={() => navigate('/order-history')}>
-          ← Back
-        </button>
         <button type="button" className="home-button" onClick={() => navigate('/home')}>
           Home
         </button>
@@ -183,120 +199,42 @@ function OrderTrackingPage() {
 }
 
 function readTrackingOrder() {
-  const cart = readCartItems()
-  const services = serviceCatalog
-    .filter((s) => (cart[s.id] || 0) > 0)
-    .map((s) => ({
-      ...s,
-      quantity: cart[s.id],
-      lineTotal: s.price * cart[s.id],
-    }))
-
-  const hasRealOrder = services.length > 0
-  const orderServices = hasRealOrder
-    ? services
-    : [
-        { id: 'demo-regular-wash', name: 'Regular Wash', quantity: 2, lineTotal: 160 },
-      ]
-
-  const schedule = readSchedule()
-  const totals = readOrderTotals()
-
-  const fallbackSchedule = {
-    pickupDate: getTodayInputValue(),
-    pickupSlot: 'Morning · 6:00 AM - 10:00 AM',
-    deliveryDate: addDaysToInputValue(getTodayInputValue(), 2),
-    deliverySlot: 'Evening · 6:00 PM - 10:00 PM',
-  }
-
-  const fallbackTotals = { subtotal: 160, deliveryCharge: 40, discount: 0, total: 200 }
-
-  const orderId = localStorage.getItem('quickwashOrderId') || `QW-${Date.now().toString().slice(-8)}`
-
-  let currentStatus = localStorage.getItem('quickwashCurrentStatus')
-  if (!currentStatus) {
-    const rand = Math.random()
-    if (rand < 0.2) currentStatus = 'picked-up'
-    else if (rand < 0.4) currentStatus = 'washing'
-    else if (rand < 0.55) currentStatus = 'ready'
-    else if (rand < 0.7) currentStatus = 'out-for-delivery'
-    else currentStatus = 'placed'
-  }
-
-  const deliveryPartner = currentStatus === 'placed' ? null : {
-    name: 'Rahul Kumar',
-    phone: '+91 98765 43210',
-  }
-
-  return {
-    orderId,
-    services: orderServices,
-    schedule: hasRealOrder ? schedule : fallbackSchedule,
-    totals: hasRealOrder ? totals : fallbackTotals,
-    currentStatus,
-    estimatedDelivery: hasRealOrder
-      ? formatDate(schedule?.deliveryDate)
-      : formatDate(fallbackSchedule.deliveryDate),
-    deliveryPartner,
-  }
-}
-
-function readCartItems() {
   try {
-    const stored = localStorage.getItem('quickwashCart')
-    return stored ? JSON.parse(stored) : {}
-  } catch {
-    return {}
-  }
-}
+    const stored = localStorage.getItem('quickwashLastOrder')
+    if (!stored) return null
+    const order = JSON.parse(stored)
+    const serviceCatalog = [
+      { id: 'regular-wash', name: 'Regular Wash', price: 80 },
+      { id: 'premium-wash', name: 'Premium Wash', price: 120 },
+      { id: 'blanket-wash', name: 'Blanket Wash', price: 250 },
+      { id: 'shirt-dry-clean', name: 'Shirt Dry Clean', price: 80 },
+      { id: 'suit-dry-clean', name: 'Suit Dry Clean', price: 350 },
+      { id: 'dress-dry-clean', name: 'Dress Dry Clean', price: 250 },
+      { id: 'shirt-iron', name: 'Shirt Iron', price: 40 },
+      { id: 'pant-iron', name: 'Pant Iron', price: 50 },
+      { id: 'saree-iron', name: 'Saree Iron', price: 120 },
+      { id: 'leather-jacket', name: 'Leather Jacket', price: 800 },
+      { id: 'comforter-care', name: 'Comforter Care', price: 900 },
+      { id: 'sneaker-clean', name: 'Sneaker Clean', price: 399 },
+    ]
 
-function readSchedule() {
-  try {
-    const stored = localStorage.getItem('quickwashSchedule')
-    return stored
-      ? JSON.parse(stored)
-      : {
-          pickupDate: getTodayInputValue(),
-          pickupSlot: 'Morning · 6:00 AM - 10:00 AM',
-          deliveryDate: addDaysToInputValue(getTodayInputValue(), 2),
-          deliverySlot: 'Evening · 6:00 PM - 10:00 PM',
-        }
-  } catch {
+    const services = order.services || []
+    const mappedServices = services.map((s) => {
+      const catalogItem = serviceCatalog.find((c) => c.id === s.id)
+      return {
+        ...s,
+        price: catalogItem?.price || s.price || 0,
+        lineTotal: s.lineTotal || (catalogItem?.price || 0) * (s.quantity || 0),
+      }
+    })
+
     return {
-      pickupDate: getTodayInputValue(),
-      pickupSlot: 'Morning · 6:00 AM - 10:00 AM',
-      deliveryDate: addDaysToInputValue(getTodayInputValue(), 2),
-      deliverySlot: 'Evening · 6:00 PM - 10:00 PM',
+      ...order,
+      services: mappedServices,
     }
-  }
-}
-
-function readOrderTotals() {
-  try {
-    const stored = localStorage.getItem('quickwashOrderTotals')
-    return stored
-      ? JSON.parse(stored)
-      : { subtotal: 0, deliveryCharge: 0, discount: 0, total: 0 }
   } catch {
-    return { subtotal: 0, deliveryCharge: 0, discount: 0, total: 0 }
+    return null
   }
-}
-
-function getTodayInputValue() {
-  const today = new Date()
-  const year = today.getFullYear()
-  const month = String(today.getMonth() + 1).padStart(2, '0')
-  const day = String(today.getDate()).padStart(2, '0')
-  return `${year}-${month}-${day}`
-}
-
-function addDaysToInputValue(dateValue, daysToAdd) {
-  const date = new Date(`${dateValue}T00:00:00`)
-  date.setDate(date.getDate() + daysToAdd)
-  const year = date.getFullYear()
-  const month = String(date.getMonth() + 1).padStart(2, '0')
-  const day = String(date.getDate()).padStart(2, '0')
-  return `${year}-${month}-${day}`
 }
 
 function formatDate(dateValue) {

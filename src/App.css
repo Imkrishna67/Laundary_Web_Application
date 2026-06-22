@@ -3,28 +3,30 @@
   display: grid;
   place-items: center;
   padding: 24px 18px;
-  background: linear-gradient(135deg, #f5fbff 0%, #f8f2ff 100%);
+  background: radial-gradient(circle at 12% 8%, rgba(79,142,247,0.10), transparent 32rem),
+    radial-gradient(circle at 88% 88%, rgba(139,92,246,0.08), transparent 30rem),
+    linear-gradient(160deg, var(--background) 0%, var(--surface-raised) 52%, var(--background-sunken) 100%);
 }
 
 .placeholder-card {
   width: min(100%, 430px);
   padding: 28px;
-  border-radius: 28px;
-  background: rgba(255, 255, 255, 0.94);
-  border: 1px solid #dce8f5;
-  box-shadow: var(--shadow);
+  border-radius: var(--radius-xl);
+  background: var(--surface-overlay);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-xl);
   text-align: center;
 }
 
 .placeholder-card h1 {
   margin: 0 0 10px;
   font-size: 28px;
-  color: #102033;
+  color: var(--text);
 }
 
 .placeholder-card p {
   margin: 0 0 20px;
-  color: var(--muted);
+  color: var(--text-secondary);
   line-height: 1.5;
 }
 
@@ -32,10 +34,16 @@
   color: var(--primary);
   font-weight: 800;
   text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.back-link:hover {
+  color: var(--primary-hover);
 }
 
 .back-link:active {
-  color: var(--primary-dark);
+  color: var(--primary-hover);
+  transform: scale(0.97);
 }
 
 @media (min-width: 1024px) {
@@ -46,7 +54,7 @@
   .placeholder-card {
     max-width: 620px;
     padding: 36px;
-    border-radius: 34px;
+    border-radius: var(--radius-2xl);
   }
 
   .placeholder-card h1 {

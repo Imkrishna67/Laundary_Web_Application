@@ -77,16 +77,32 @@ const serviceCatalog = [
   },
 ]
 
+const PROMOS = [
+  { code: 'QUICK20', discount: 0.2, label: '20% OFF', description: 'Flat 20% off on all services' },
+  { code: 'FIRST50', discount: 50, label: '₹50 OFF', description: '₹50 off on your first order' },
+  { code: 'WEEKEND', discount: 0.15, label: '15% OFF', description: '15% off on all services' },
+]
+
+function getPromoDiscount(code, subtotal) {
+  const promo = PROMOS.find((p) => p.code === code)
+  if (!promo) return 0
+  if (promo.discount === 'freeship') return 0
+  if (typeof promo.discount === 'number' && promo.discount < 1) return Math.round(subtotal * promo.discount)
+  return Math.min(promo.discount, subtotal)
+}
+
+function isFreeDelivery(code) {
+  const promo = PROMOS.find((p) => p.code === code)
+  return promo?.discount === 'freeship'
+}
+
 function CartPage() {
   const navigate = useNavigate()
   const [cartItems, setCartItems] = useState(readCartItems)
   const [promoCode, setPromoCode] = useState('')
   const [appliedPromo, setAppliedPromo] = useState('')
   const [promoMessage, setPromoMessage] = useState('')
-
-  useEffect(() => {
-    localStorage.setItem('quickwashCart', JSON.stringify(cartItems))
-  }, [cartItems])
+  const [copiedCode, setCopiedCode] = useState('')
 
   const selectedServices = useMemo(
     () =>
@@ -101,8 +117,9 @@ function CartPage() {
   )
 
   const subtotal = selectedServices.reduce((total, service) => total + service.lineTotal, 0)
-  const discount = appliedPromo ? Math.round(subtotal * 0.2) : 0
-  const deliveryCharge = subtotal > 0 && subtotal - discount >= 500 ? 0 : 40
+  const discount = appliedPromo ? getPromoDiscount(appliedPromo, subtotal) : 0
+  const freeDelivery = appliedPromo ? isFreeDelivery(appliedPromo) : false
+  const deliveryCharge = subtotal > 0 && (freeDelivery || subtotal - discount >= 500) ? 0 : 40
   const total = Math.max(0, subtotal + deliveryCharge - discount)
 
   useEffect(() => {
@@ -129,23 +146,28 @@ function CartPage() {
 
   function handleApplyPromo(event) {
     event.preventDefault()
-
     const normalizedCode = promoCode.trim().toUpperCase()
-
     if (!normalizedCode) {
       setPromoMessage('Please enter a promo code.')
       setAppliedPromo('')
       return
     }
-
-    if (normalizedCode === 'QUICK20') {
+    if (PROMOS.find((p) => p.code === normalizedCode)) {
       setAppliedPromo(normalizedCode)
-      setPromoMessage('Promo code applied successfully.')
+      setPromoMessage(`Promo code ${normalizedCode} applied successfully.`)
+      setPromoCode('')
       return
     }
-
     setAppliedPromo('')
-    setPromoMessage('Invalid promo code. Try QUICK20.')
+    setPromoMessage('Invalid promo code. Try one of the available codes below.')
+  }
+
+  function handlePromoClick(code) {
+    setAppliedPromo(code)
+    setPromoMessage(`Promo code ${code} applied successfully!`)
+    setCopiedCode(code)
+    navigator.clipboard.writeText(code).catch(() => {})
+    setTimeout(() => setCopiedCode(''), 2000)
   }
 
   return (
@@ -239,6 +261,35 @@ function CartPage() {
                 {promoMessage}
               </p>
             ) : null}
+            <div className="promo-chips">
+              {PROMOS.map((promo) => {
+                const isApplied = appliedPromo === promo.code
+                const isCopied = copiedCode === promo.code
+                return (
+                  <button
+                    key={promo.code}
+                    type="button"
+                    className={`promo-chip ${isApplied ? 'applied' : ''}`}
+                    onClick={() => handlePromoClick(promo.code)}
+                    disabled={isApplied}
+                  >
+                    <span className="promo-chip-row">
+                      <span className="promo-chip-label">{promo.label}</span>
+                    </span>
+                    <span className="promo-chip-row promo-chip-body">
+                      <span className="promo-chip-code">{promo.code}</span>
+                      <span className="promo-chip-desc">{promo.description}</span>
+                    </span>
+                    {isApplied && (
+                      <span className="promo-chip-badge">✓ Applied</span>
+                    )}
+                    {isCopied && (
+                      <span className="promo-chip-copied">Copied!</span>
+                    )}
+                  </button>
+                )
+              })}
+            </div>
           </section>
 
           <button

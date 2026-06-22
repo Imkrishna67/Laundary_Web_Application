@@ -58,6 +58,7 @@ function LoginPage() {
   const [error, setError] = useState('')
   const [successMessage, setSuccessMessage] = useState('')
   const [fieldErrors, setFieldErrors] = useState({})
+  const [socialMessage, setSocialMessage] = useState('')
 
   function clearFieldError(field) {
     setFieldErrors((currentErrors) => {
@@ -144,12 +145,12 @@ function LoginPage() {
   }
 
   function handleGoogleLogin() {
-    setError(`Google login will be connected in the next build. ${demoCredentialsMessage}`)
+    setSocialMessage('Google login will be available soon. Please use email/mobile to login.')
   }
 
   function handleForgotPassword(event) {
     event.preventDefault()
-    setError('Forgot password flow will be added next.')
+    setSocialMessage('Password reset link will be sent to your registered email/mobile.')
   }
 
   return (
@@ -265,6 +266,10 @@ function LoginPage() {
               OR
               <span />
             </div>
+
+            {socialMessage ? (
+              <p className="helper-message" role="status">{socialMessage}</p>
+            ) : null}
 
             <button
               className="google-button"

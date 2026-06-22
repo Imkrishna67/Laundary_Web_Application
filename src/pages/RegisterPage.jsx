@@ -79,6 +79,8 @@ function RegisterPage() {
   const [error, setError] = useState('')
   const [successMessage, setSuccessMessage] = useState('')
   const [fieldErrors, setFieldErrors] = useState({})
+  const [socialMessage, setSocialMessage] = useState('')
+  const [showTerms, setShowTerms] = useState(false)
 
   function clearFieldError(field) {
     setFieldErrors((currentErrors) => {
@@ -159,7 +161,7 @@ function RegisterPage() {
   }
 
   function handleGoogleSignup() {
-    setError('Google signup will be connected in the next build.')
+    setSocialMessage('Google signup will be available soon. Please fill the form to create your account.')
   }
 
   return (
@@ -345,13 +347,19 @@ function RegisterPage() {
                 aria-invalid={Boolean(fieldErrors.terms)}
                 aria-describedby={fieldErrors.terms ? 'terms-error' : undefined}
               />
-              <span>
-                I agree to the{' '}
-                <a href="#terms" onClick={(event) => event.preventDefault()}>
-                  Terms & Conditions
-                </a>
-              </span>
-            </label>
+               <span>
+                 I agree to the{' '}
+                 <button type="button" className="inline-link" onClick={() => setShowTerms((current) => !current)}>
+                   {showTerms ? 'Hide' : 'View'} Terms & Conditions
+                 </button>
+               </span>
+               {showTerms && (
+                 <div className="terms-box">
+                   <p>By creating an account, you agree to our Terms of Service and Privacy Policy. QuickWash provides laundry services at your convenience and is not liable for any damage to delicate items unless explicitly insured.</p>
+                   <button type="button" className="terms-close" onClick={() => setShowTerms(false)}>Close</button>
+                 </div>
+               )}
+             </label>
             {fieldErrors.terms ? (
               <p id="terms-error" className="field-error">
                 {fieldErrors.terms}
@@ -375,6 +383,10 @@ function RegisterPage() {
               OR
               <span />
             </div>
+
+            {socialMessage ? (
+              <p className="helper-message" role="status">{socialMessage}</p>
+            ) : null}
 
             <button
               className="google-button"

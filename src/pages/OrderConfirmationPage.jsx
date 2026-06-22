@@ -2,21 +2,6 @@ import { useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import '../order-confirmation.css'
 
-const serviceCatalog = [
-  { id: 'regular-wash', name: 'Regular Wash', price: 80 },
-  { id: 'premium-wash', name: 'Premium Wash', price: 120 },
-  { id: 'blanket-wash', name: 'Blanket Wash', price: 250 },
-  { id: 'shirt-dry-clean', name: 'Shirt Dry Clean', price: 80 },
-  { id: 'suit-dry-clean', name: 'Suit Dry Clean', price: 350 },
-  { id: 'dress-dry-clean', name: 'Dress Dry Clean', price: 250 },
-  { id: 'shirt-iron', name: 'Shirt Iron', price: 40 },
-  { id: 'pant-iron', name: 'Pant Iron', price: 50 },
-  { id: 'saree-iron', name: 'Saree Iron', price: 120 },
-  { id: 'leather-jacket', name: 'Leather Jacket', price: 800 },
-  { id: 'comforter-care', name: 'Comforter Care', price: 900 },
-  { id: 'sneaker-clean', name: 'Sneaker Clean', price: 399 },
-]
-
 function OrderConfirmationPage() {
   const navigate = useNavigate()
   const order = useMemo(() => readOrderConfirmation(), [])
@@ -78,7 +63,7 @@ function OrderConfirmationPage() {
         </div>
 
         <div className="confirmation-actions">
-          <button className="track-button" type="button" onClick={() => navigate('/orders')}>
+          <button className="track-button" type="button" onClick={() => navigate('/track-order')}>
             Track Order
           </button>
           <button className="home-button" type="button" onClick={() => navigate('/home')}>
@@ -91,59 +76,39 @@ function OrderConfirmationPage() {
 }
 
 function readOrderConfirmation() {
-  const cart = readCartItems()
-  const services = serviceCatalog
-    .filter((service) => (cart[service.id] || 0) > 0)
-    .map((service) => ({
-      ...service,
-      quantity: cart[service.id],
-      lineTotal: service.price * cart[service.id],
-    }))
-
-  const hasRealOrder = services.length > 0
-  const orderServices = hasRealOrder
-    ? services
-    : [
-        {
-          id: 'demo-regular-wash',
-          name: 'Regular Wash',
-          quantity: 2,
-          lineTotal: 160,
+  try {
+    const storedOrder = localStorage.getItem('quickwashLastOrder')
+    if (storedOrder) {
+      const order = JSON.parse(storedOrder)
+      return {
+        orderId: order.id,
+        services: order.services,
+        schedule: order.schedule,
+        address: order.address,
+        totals: {
+          subtotal: order.subtotal,
+          deliveryCharge: order.deliveryCharge,
+          discount: order.discount,
+          total: order.total,
         },
-      ]
-
-  const schedule = readSchedule()
-  const addresses = readAddresses()
-  const selectedAddressId = localStorage.getItem('quickwashSelectedAddressId') || ''
-  const selectedAddress = addresses.find((address) => address.id === selectedAddressId)
-
-  const totals = readOrderTotals()
-  const fallbackTotals = {
-    subtotal: 160,
-    deliveryCharge: 40,
-    discount: 0,
-    total: 200,
-  }
-
-  let orderId = localStorage.getItem('quickwashOrderId')
-
-  if (!orderId) {
-    orderId = `QW-${Date.now().toString().slice(-8)}`
-    localStorage.setItem('quickwashOrderId', orderId)
+      }
+    }
+  } catch {
+    // fall through to demo data
   }
 
   return {
-    orderId,
-    services: orderServices,
-    schedule: hasRealOrder
-      ? schedule
-      : {
-          pickupDate: getTodayInputValue(),
-          pickupSlot: 'Morning · 6:00 AM - 10:00 AM',
-          deliveryDate: addDaysToInputValue(getTodayInputValue(), 1),
-          deliverySlot: 'Evening · 6:00 PM - 10:00 PM',
-        },
-    address: selectedAddress || {
+    orderId: 'QW-2048',
+    services: [
+      { id: 'demo-regular-wash', name: 'Regular Wash', quantity: 2, lineTotal: 160 },
+    ],
+    schedule: {
+      pickupDate: getTodayInputValue(),
+      pickupSlot: 'Morning · 6:00 AM - 10:00 AM',
+      deliveryDate: addDaysToInputValue(getTodayInputValue(), 1),
+      deliverySlot: 'Evening · 6:00 PM - 10:00 PM',
+    },
+    address: {
       id: 'demo-address',
       houseNo: 'A-102',
       street: 'Green Park',
@@ -151,67 +116,12 @@ function readOrderConfirmation() {
       pincode: '110016',
       landmark: 'Near Metro Station',
     },
-    totals: hasRealOrder ? totals : fallbackTotals,
-  }
-}
-
-function readCartItems() {
-  try {
-    const storedCart = localStorage.getItem('quickwashCart')
-    return storedCart ? JSON.parse(storedCart) : {}
-  } catch {
-    return {}
-  }
-}
-
-function readSchedule() {
-  try {
-    const storedSchedule = localStorage.getItem('quickwashSchedule')
-    return storedSchedule
-      ? JSON.parse(storedSchedule)
-      : {
-          pickupDate: getTodayInputValue(),
-          pickupSlot: 'Morning · 6:00 AM - 10:00 AM',
-          deliveryDate: addDaysToInputValue(getTodayInputValue(), 1),
-          deliverySlot: 'Evening · 6:00 PM - 10:00 PM',
-        }
-  } catch {
-    return {
-      pickupDate: getTodayInputValue(),
-      pickupSlot: 'Morning · 6:00 AM - 10:00 AM',
-      deliveryDate: addDaysToInputValue(getTodayInputValue(), 1),
-      deliverySlot: 'Evening · 6:00 PM - 10:00 PM',
-    }
-  }
-}
-
-function readAddresses() {
-  try {
-    const storedAddresses = localStorage.getItem('quickwashAddresses')
-    return storedAddresses ? JSON.parse(storedAddresses) : []
-  } catch {
-    return []
-  }
-}
-
-function readOrderTotals() {
-  try {
-    const storedTotals = localStorage.getItem('quickwashOrderTotals')
-    return storedTotals
-      ? JSON.parse(storedTotals)
-      : {
-          subtotal: 0,
-          deliveryCharge: 0,
-          discount: 0,
-          total: 0,
-        }
-  } catch {
-    return {
-      subtotal: 0,
-      deliveryCharge: 0,
+    totals: {
+      subtotal: 160,
+      deliveryCharge: 40,
       discount: 0,
-      total: 0,
-    }
+      total: 200,
+    },
   }
 }
 

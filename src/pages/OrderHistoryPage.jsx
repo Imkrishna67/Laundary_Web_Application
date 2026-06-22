@@ -52,7 +52,10 @@ function OrderHistoryPage() {
       <div className="orders-list">
         {filteredOrders.length === 0 ? (
           <div className="empty-state">
-            <p>No {activeTab} orders</p>
+            <p>No {activeTab} orders yet.</p>
+            <button className="back-button" type="button" onClick={() => navigate('/services')}>
+              Book a Service
+            </button>
           </div>
         ) : (
           filteredOrders.map((order) => {
@@ -111,6 +114,7 @@ function OrderHistoryPage() {
 function OrderHistoryDetailView({ orderId, onBack }) {
   const order = orderService.getOrderById(orderId)
   const navigate = useNavigate()
+  const [helpCopied, setHelpCopied] = useState(false)
 
   if (!order) {
     return (
@@ -123,6 +127,12 @@ function OrderHistoryDetailView({ orderId, onBack }) {
         </button>
       </main>
     )
+  }
+
+  function handleHelp() {
+    navigator.clipboard.writeText('Support: +91 1800-123-4567 | support@quickwash.in')
+    setHelpCopied(true)
+    setTimeout(() => setHelpCopied(false), 2000)
   }
 
   return (
@@ -254,9 +264,9 @@ function OrderHistoryDetailView({ orderId, onBack }) {
             Reorder
           </button>
         )}
-        <button type="button" className="help-button" onClick={() => alert('Support: +91 1800-123-4567\nEmail: support@quickwash.in')}>
-          Need Help?
-        </button>
+         <button type="button" className="help-button" onClick={handleHelp}>
+           {helpCopied ? 'Copied!' : 'Need Help?'}
+         </button>
         <button type="button" className="secondary-button" onClick={onBack}>
           Back to Orders
         </button>
