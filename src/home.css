@@ -258,6 +258,147 @@
   gap: 14px;
 }
 
+@media (max-width: 480px) {
+  .home-page {
+    padding: 10px 10px calc(66px + env(safe-area-inset-bottom));
+  }
+
+  .home-header {
+    margin-bottom: 14px;
+    gap: 8px;
+  }
+
+  .home-header h1 {
+    font-size: 22px;
+  }
+
+  .icon-button {
+    width: 38px;
+    height: 38px;
+  }
+
+  .icon-button svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .search-card {
+    height: 48px;
+    padding: 0 12px;
+    margin-top: 10px;
+  }
+
+  .search-card input {
+    font-size: 14px;
+  }
+
+  .promo-banner {
+    padding: 16px;
+    min-height: 120px;
+    margin-top: 14px;
+  }
+
+  .promo-banner h2 {
+    max-width: 100%;
+    font-size: 20px;
+    margin: 10px 0 6px;
+  }
+
+  .promo-banner p {
+    max-width: 100%;
+    font-size: 13px;
+  }
+
+  .promo-badge {
+    font-size: 10px;
+    padding: 0 10px;
+    min-height: 24px;
+  }
+
+  .carousel-dots {
+    margin-top: 14px;
+    gap: 6px;
+  }
+
+  .carousel-dot {
+    width: 7px;
+    height: 7px;
+  }
+
+  .carousel-dot.active {
+    width: 22px;
+  }
+
+  .section-header {
+    margin: 20px 0 10px;
+  }
+
+  .section-header h2 {
+    font-size: 17px;
+  }
+
+  .service-card {
+    min-height: 96px;
+    padding: 12px;
+    gap: 8px;
+  }
+
+  .service-icon {
+    width: 38px;
+    height: 38px;
+  }
+
+  .service-icon svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .service-card h3 {
+    font-size: 14px;
+  }
+
+  .service-card p {
+    font-size: 11px;
+  }
+
+  .active-order-card {
+    padding: 14px;
+    margin-top: 16px;
+  }
+
+  .active-order-card h2 {
+    font-size: 16px;
+  }
+
+  .order-meta {
+    font-size: 12px;
+  }
+
+  .status-pill {
+    font-size: 10px;
+    padding: 6px 10px;
+  }
+
+  .timeline-item h3 {
+    font-size: 12px;
+  }
+
+  .timeline-item p {
+    font-size: 11px;
+  }
+
+  .pickup-button {
+    min-height: 50px;
+    font-size: 15px;
+    margin-top: 14px;
+  }
+
+  .view-order-button {
+    min-height: 44px;
+    font-size: 13px;
+  }
+}
+
 @media (min-width: 480px) {
   .service-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
