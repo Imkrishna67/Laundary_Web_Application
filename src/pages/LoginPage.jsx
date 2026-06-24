@@ -58,7 +58,6 @@ function LoginPage() {
   const [error, setError] = useState('')
   const [successMessage, setSuccessMessage] = useState('')
   const [fieldErrors, setFieldErrors] = useState({})
-  const [socialMessage, setSocialMessage] = useState('')
 
   function clearFieldError(field) {
     setFieldErrors((currentErrors) => {
@@ -144,13 +143,9 @@ function LoginPage() {
     }
   }
 
-  function handleGoogleLogin() {
-    setSocialMessage('Google login will be available soon. Please use email/mobile to login.')
-  }
 
   function handleForgotPassword(event) {
     event.preventDefault()
-    setSocialMessage('Password reset link will be sent to your registered email/mobile.')
   }
 
   return (
@@ -267,24 +262,6 @@ function LoginPage() {
               <span />
             </div>
 
-            {socialMessage ? (
-              <p className="helper-message" role="status">{socialMessage}</p>
-            ) : null}
-
-            <button
-              className="google-button"
-              type="button"
-              onClick={handleGoogleLogin}
-              aria-label="Continue with Google"
-            >
-              <svg viewBox="0 0 48 48" aria-hidden="true">
-                <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.6 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.1 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5Z" />
-                <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.1 6.1 29.3 4 24 4 16.3 4 9.6 8.3 6.3 14.7Z" />
-                <path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.1 35.2 26.7 36 24 36c-5.3 0-9.8-3.4-11.4-8.1l-6.6 5.1C9.3 39.4 16.1 44 24 44Z" />
-                <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.4 4.2-4.5 5.4l.1.1 6.2 5.2-.4.4C38.5 37.5 40 34.9 40 32c0-4.4-1.7-8.3-4.4-11.2 0 0 8-2.3 8-.3Z" />
-              </svg>
-              Continue with Google
-            </button>
           </form>
 
           <div className="signup-row">
