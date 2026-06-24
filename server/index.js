@@ -18,7 +18,13 @@ const __dirname = path.dirname(__filename)
 
 // middleware
 app.use(express.json())
-app.use(cors())
+app.use(cors({
+  origin: [
+    'http://localhost:5173',
+    'http://localhost:5174',
+    'https://laundary-web-application.vercel.app'
+  ]
+}))
 
 // MongoDB connect
 mongoose.connect(process.env.MONGO_URI)
@@ -42,6 +48,12 @@ app.post('/api/auth/register', async (req, res) => {
   try {
     const { fullName, mobile, email, password } = req.body
 
+    const existingUser = await User.findOne({ $or: [{ email }, { mobile }] })
+
+    if (existingUser) {
+      return res.status(409).json({ message: 'An account with this email or mobile already exists.' })
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10)
 
     const user = new User({
@@ -53,7 +65,7 @@ app.post('/api/auth/register', async (req, res) => {
 
     await user.save()
 
-    res.json({ message: "User registered successfully" })
+    res.status(201).json({ message: "Account created successfully. You can login now." })
 
   } catch (err) {
     res.status(500).json({ error: err.message })
@@ -70,17 +82,17 @@ app.post('/api/auth/login', async (req, res) => {
     })
 
     if (!user) {
-      return res.status(400).json({ message: "User not found" })
+      return res.status(401).json({ message: "Invalid credentials." })
     }
 
     const match = await bcrypt.compare(password, user.password)
 
     if (!match) {
-      return res.status(400).json({ message: "Wrong password" })
+      return res.status(401).json({ message: "Invalid credentials." })
     }
 
     res.json({
-      message: "Login successful",
+      message: "Login successful! Welcome to QuickWash.",
       user: {
         fullName: user.fullName,
         email: user.email,
@@ -95,10 +107,8 @@ app.post('/api/auth/login', async (req, res) => {
 
 // ---------------- FRONTEND SERVE ----------------
 
-// serve frontend build (Vite dist)
 app.use(express.static(path.join(__dirname, "../dist")))
 
-// fallback route (FIXED - no '*' error)
 app.get("/*", (req, res) => {
   res.sendFile(path.join(__dirname, "../dist/index.html"))
 })
