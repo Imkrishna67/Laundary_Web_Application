@@ -2,10 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import '../login.css'
 
-const apiBaseUrl = 'http://localhost:5000'
-
-const demoCredentialsMessage =
-  'Try quickwash@example.com / QuickWash@123 or 9876543210 / QuickWash@123.'
+const apiBaseUrl = 'https://quickwash-backend.onrender.com'
 
 function validateIdentifier(value) {
   const trimmedValue = value.trim()
@@ -37,16 +34,6 @@ function validatePassword(value) {
 
 function normalizeIdentifier(value) {
   return value.trim().toLowerCase()
-}
-
-function isDemoCredentials(identifierValue, passwordValue) {
-  const normalizedIdentifier = normalizeIdentifier(identifierValue)
-
-  return (
-    passwordValue === 'QuickWash@123' &&
-    (normalizedIdentifier === 'quickwash@example.com' ||
-      normalizedIdentifier === '9876543210')
-  )
 }
 
 function LoginPage() {
@@ -104,7 +91,7 @@ function LoginPage() {
       const data = await response.json()
 
       if (!response.ok) {
-        throw new Error(data.message || demoCredentialsMessage)
+        throw new Error(data.message || 'Invalid credentials. Please try again.')
       }
 
       localStorage.setItem(
@@ -120,29 +107,15 @@ function LoginPage() {
       const isConnectionError =
         error instanceof TypeError && error.message === 'Failed to fetch'
 
-      if (isConnectionError && isDemoCredentials(identifier, password)) {
-        localStorage.setItem(
-          'quickwashUser',
-          JSON.stringify({
-            identifier: normalizeIdentifier(identifier),
-            loggedInAt: new Date().toISOString(),
-          }),
-        )
-        setSuccessMessage('Login successful! Welcome to QuickWash.')
-        navigate('/home')
-        return
-      }
-
       setError(
         isConnectionError
-          ? 'Unable to connect to QuickWash API. Start the Node server with npm run server or use the demo credentials.'
-          : error.message || demoCredentialsMessage,
+          ? 'Unable to connect. Please try again later.'
+          : error.message || 'Something went wrong. Please try again.',
       )
     } finally {
       setIsLoading(false)
     }
   }
-
 
   function handleForgotPassword(event) {
     event.preventDefault()

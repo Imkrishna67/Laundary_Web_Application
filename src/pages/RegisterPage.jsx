@@ -2,10 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import '../login.css'
 
-const apiBaseUrl = 'http://localhost:5000'
-
-const apiUnavailableMessage =
-  'Unable to connect to QuickWash API. Start the Node server with npm run server.'
+const apiBaseUrl = 'https://quickwash-backend.onrender.com'
 
 function validateFullName(value) {
   const trimmedValue = value.trim()
@@ -154,7 +151,11 @@ function RegisterPage() {
       const isConnectionError =
         caughtError instanceof TypeError && caughtError.message === 'Failed to fetch'
 
-      setError(isConnectionError ? apiUnavailableMessage : caughtError.message)
+      setError(
+        isConnectionError
+          ? 'Unable to connect. Please try again later.'
+          : caughtError.message
+      )
     } finally {
       setIsLoading(false)
     }
@@ -347,19 +348,19 @@ function RegisterPage() {
                 aria-invalid={Boolean(fieldErrors.terms)}
                 aria-describedby={fieldErrors.terms ? 'terms-error' : undefined}
               />
-               <span>
-                 I agree to the{' '}
-                 <button type="button" className="inline-link" onClick={() => setShowTerms((current) => !current)}>
-                   {showTerms ? 'Hide' : 'View'} Terms & Conditions
-                 </button>
-               </span>
-               {showTerms && (
-                 <div className="terms-box">
-                   <p>By creating an account, you agree to our Terms of Service and Privacy Policy. QuickWash provides laundry services at your convenience and is not liable for any damage to delicate items unless explicitly insured.</p>
-                   <button type="button" className="terms-close" onClick={() => setShowTerms(false)}>Close</button>
-                 </div>
-               )}
-             </label>
+              <span>
+                I agree to the{' '}
+                <button type="button" className="inline-link" onClick={() => setShowTerms((current) => !current)}>
+                  {showTerms ? 'Hide' : 'View'} Terms & Conditions
+                </button>
+              </span>
+              {showTerms && (
+                <div className="terms-box">
+                  <p>By creating an account, you agree to our Terms of Service and Privacy Policy. QuickWash provides laundry services at your convenience and is not liable for any damage to delicate items unless explicitly insured.</p>
+                  <button type="button" className="terms-close" onClick={() => setShowTerms(false)}>Close</button>
+                </div>
+              )}
+            </label>
             {fieldErrors.terms ? (
               <p id="terms-error" className="field-error">
                 {fieldErrors.terms}
