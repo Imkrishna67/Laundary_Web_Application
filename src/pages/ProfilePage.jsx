@@ -15,14 +15,76 @@ function ProfilePage() {
   const [notifications, setNotifications] = useState(true)
   const [language, setLanguage] = useState('English')
   const [toast, setToast] = useState({ show: false, text: '' })
+  const [isEditing, setIsEditing] = useState(false)
+  const [editName, setEditName] = useState('')
+  const [editMobile, setEditMobile] = useState('')
+  const [editEmail, setEditEmail] = useState('')
+
+  function getStoredUser() {
+    try {
+      const stored = localStorage.getItem('quickwashUser')
+      return stored ? JSON.parse(stored) : {}
+    } catch {
+      return {}
+    }
+  }
+
+  const storedUser = getStoredUser()
+  const fullName = storedUser.fullName || 'User'
+  const mobile = storedUser.mobile || ''
+  const email = storedUser.email || storedUser.identifier || ''
+
+  function getInitials(name) {
+    const parts = name.trim().split(/\s+/)
+    if (parts.length >= 2) {
+      return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+    }
+    return name.slice(0, 2).toUpperCase()
+  }
 
   function showToast(text) {
     setToast({ show: true, text })
     setTimeout(() => setToast({ show: false, text: '' }), 3000)
   }
 
-  function handleEditProfile() {
-    showToast('Profile editing coming in next update.')
+  function startEdit() {
+    setEditName(fullName === 'User' ? '' : fullName)
+    setEditMobile(mobile)
+    setEditEmail(email === storedUser.identifier ? '' : email)
+    setIsEditing(true)
+  }
+
+  function saveProfile() {
+    const trimmedName = editName.trim()
+    const trimmedMobile = editMobile.replace(/\D/g, '')
+    const trimmedEmail = editEmail.trim().toLowerCase()
+
+    if (!trimmedName) {
+      showToast('Please enter your name.')
+      return
+    }
+
+    if (trimmedMobile && !/^[6-9]\d{9}$/.test(trimmedMobile)) {
+      showToast('Enter a valid 10-digit mobile number.')
+      return
+    }
+
+    if (trimmedEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmedEmail)) {
+      showToast('Enter a valid email address.')
+      return
+    }
+
+    const updatedUser = {
+      ...storedUser,
+      fullName: trimmedName,
+      mobile: trimmedMobile,
+      email: trimmedEmail || storedUser.identifier || '',
+    }
+
+    localStorage.setItem('quickwashUser', JSON.stringify(updatedUser))
+    setIsEditing(false)
+    showToast('Profile updated successfully.')
+    setTimeout(() => window.location.reload(), 500)
   }
 
   function handlePaymentMethods() {
@@ -53,15 +115,51 @@ function ProfilePage() {
       )}
 
       <section className="profile-card">
-        <div className="profile-avatar">JD</div>
+        <div className="profile-avatar">{getInitials(fullName)}</div>
         <div className="profile-info">
-          <h2>John Doe</h2>
-          <p>+91 98765 43210</p>
-          <p>john.doe@example.com</p>
+          {isEditing ? (
+            <>
+              <input
+                className="edit-input"
+                type="text"
+                value={editName}
+                onChange={(e) => setEditName(e.target.value)}
+                placeholder="Full Name"
+              />
+              <input
+                className="edit-input"
+                type="tel"
+                value={editMobile}
+                onChange={(e) => setEditMobile(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                placeholder="Mobile Number"
+                maxLength={10}
+              />
+              <input
+                className="edit-input"
+                type="email"
+                value={editEmail}
+                onChange={(e) => setEditEmail(e.target.value)}
+                placeholder="Email"
+              />
+            </>
+          ) : (
+            <>
+              <h2>{fullName}</h2>
+              {mobile ? <p>+91 {mobile}</p> : null}
+              <p>{email}</p>
+            </>
+          )}
         </div>
-        <button type="button" className="edit-profile-button" onClick={handleEditProfile}>
-          Edit Profile
-        </button>
+        {isEditing ? (
+          <div className="edit-actions">
+            <button type="button" className="edit-profile-button save" onClick={saveProfile}>Save</button>
+            <button type="button" className="edit-profile-button cancel" onClick={() => setIsEditing(false)}>Cancel</button>
+          </div>
+        ) : (
+          <button type="button" className="edit-profile-button" onClick={startEdit}>
+            Edit Profile
+          </button>
+        )}
       </section>
 
       <section className="menu-section">

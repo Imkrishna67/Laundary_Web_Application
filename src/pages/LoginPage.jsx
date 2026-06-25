@@ -94,13 +94,14 @@ function LoginPage() {
         throw new Error(data.message || 'Invalid credentials. Please try again.')
       }
 
-      localStorage.setItem(
-        'quickwashUser',
-        JSON.stringify({
-          identifier: normalizeIdentifier(identifier),
-          loggedInAt: new Date().toISOString(),
-        }),
-      )
+      const storedUser = {
+        identifier: normalizeIdentifier(identifier),
+        fullName: data.user?.fullName || '',
+        mobile: data.user?.mobile || '',
+        email: data.user?.email || normalizeIdentifier(identifier),
+        loggedInAt: new Date().toISOString(),
+      }
+      localStorage.setItem('quickwashUser', JSON.stringify(storedUser))
       setSuccessMessage(data.message || 'Login successful! Welcome to QuickWash.')
       navigate('/home')
     } catch (error) {

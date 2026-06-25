@@ -142,7 +142,9 @@ function RegisterPage() {
       localStorage.setItem(
         'quickwashUser',
         JSON.stringify({
-          identifier: email.trim().toLowerCase(),
+          fullName: fullName.trim(),
+          mobile: normalizeMobile(mobile),
+          email: email.trim().toLowerCase(),
           registeredAt: new Date().toISOString(),
         }),
       )
