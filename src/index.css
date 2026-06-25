@@ -160,3 +160,9 @@ body {
 body {
   min-width: 0;
 }
+
+.no-transition *,
+.no-transition *::before,
+.no-transition *::after {
+  transition: none !important;
+}

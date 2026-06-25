@@ -19,6 +19,7 @@ export function ThemeProvider({ children }) {
 
   const toggle = () => {
     const next = theme === 'dark' ? 'light' : 'dark'
+    document.documentElement.classList.add('no-transition')
     setTheme(next)
     document.documentElement.setAttribute('data-theme', next)
     try {
@@ -26,6 +27,11 @@ export function ThemeProvider({ children }) {
     } catch {
       // ignore storage errors
     }
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        document.documentElement.classList.remove('no-transition')
+      })
+    })
   }
 
   const value = useMemo(() => ({ theme, toggle }), [theme])

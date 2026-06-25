@@ -172,50 +172,49 @@ textarea::placeholder {
 .quantity-button:active {
   transform: scale(0.97);
 }
-  .service-card:hover,
-  .cart-item:hover,
-  .order-card:hover,
-  .service-list-card:hover,
-  .address-option:hover,
-  .menu-item:hover,
-  .setting-item:hover,
-  .login-card:hover,
-  .profile-card:hover,
-  .search-card:hover,
-  .summary-card:hover,
-  .status-card:hover,
-  .timeline-card:hover,
-  .partner-card:hover,
-  .details-card:hover,
-  .detail-card:hover,
-  .cart-summary-card:hover,
-  .promo-card:hover,
-  .empty-cart:hover,
-  .address-card:hover,
-  .schedule-card:hover,
-  .confirmation-card:hover,
-  .no-results:hover,
-  .placeholder-card:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-lg);
-  }
 
-  .primary-button:not(:disabled):hover,
-  .pickup-button:not(:disabled):hover,
-  .confirm-button:not(:disabled):hover,
-  .save-button:not(:disabled):hover,
-  .proceed-button:not(:disabled):hover,
-  .track-button:not(:disabled):hover,
-  .view-cart-button:not(:disabled):hover,
-  .icon-button:hover,
-  .back-button:hover,
-  .google-button:hover,
-  .category-tab:hover,
-  .slot-button:hover,
-  .add-button:hover,
-  .quantity-button:hover {
-    transform: translateY(-1px);
-  }
+.service-card:hover,
+.cart-item:hover,
+.order-card:hover,
+.service-list-card:hover,
+.address-option:hover,
+.menu-item:hover,
+.setting-item:hover,
+.login-card:hover,
+.profile-card:hover,
+.search-card:hover,
+.summary-card:hover,
+.status-card:hover,
+.timeline-card:hover,
+.partner-card:hover,
+.details-card:hover,
+.detail-card:hover,
+.cart-summary-card:hover,
+.promo-card:hover,
+.empty-cart:hover,
+.address-card:hover,
+.schedule-card:hover,
+.confirmation-card:hover,
+.no-results:hover,
+.placeholder-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.primary-button:not(:disabled):hover,
+.pickup-button:not(:disabled):hover,
+.confirm-button:not(:disabled):hover,
+.save-button:not(:disabled):hover,
+.proceed-button:not(:disabled):hover,
+.track-button:not(:disabled):hover,
+.view-cart-button:not(:disabled):hover,
+.icon-button:hover,
+.google-button:hover,
+.category-tab:hover,
+.slot-button:hover,
+.add-button:hover,
+.quantity-button:hover {
+  transform: translateY(-1px);
 }
 
 .eyebrow {
