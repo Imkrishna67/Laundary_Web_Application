@@ -146,24 +146,23 @@ function HomePage() {
           <button className="icon-button" type="button" aria-label="Cart" onClick={() => navigate('/cart')}>
             <CartIcon />
           </button>
-          <button className="icon-button" type="button" aria-label="Notifications" onClick={() => navigate('/orders')}>
-            <BellIcon />
-          </button>
           <button className="icon-button" type="button" aria-label="Profile" onClick={() => navigate('/profile')}>
             <ProfileIcon />
           </button>
         </div>
       </header>
 
-      <section className="search-card" aria-label="Search services">
-        <SearchIcon />
+      <div className="search-wrapper" aria-label="Search services">
+        <span className="search-icon-wrap">
+          <SearchIcon />
+        </span>
         <input
           type="search"
           value={searchText}
           onChange={(event) => setSearchText(event.target.value)}
           placeholder="Search for wash, iron..."
         />
-      </section>
+      </div>
 
       <section className="promo-banner" aria-label="Promotional offers">
         <div className="promo-content">
@@ -294,14 +293,7 @@ function HomePage() {
   )
 }
 
-function BellIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path d="M18 9a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M10 21h4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-    </svg>
-  )
-}
+
 
 function ProfileIcon() {
   return (

@@ -1,6 +1,6 @@
 .profile-page {
   min-height: 100svh;
-  padding: 24px 16px 36px;
+  padding: 24px 16px calc(66px + env(safe-area-inset-bottom));
   background:
     radial-gradient(circle at top left, rgba(79, 142, 247, 0.10), transparent 40%),
     radial-gradient(circle at bottom right, rgba(139, 92, 246, 0.08), transparent 40%),
@@ -28,18 +28,24 @@
 
 .profile-header .back-button {
   position: static;
-  background: transparent;
+  width: 24px;
+  height: 16px;
   border: 0;
-  color: var(--primary);
-  font-size: 14px;
-  font-weight: 700;
-  cursor: pointer;
-  padding: 4px 8px;
-  transition: color 0.2s ease;
+  border-radius: 8px;
+  background: var(--surface-raised);
+  color: var(--text-secondary);
+  display: grid;
+  place-items: center;
+  transition: background 0.2s ease, color 0.2s ease;
 }
 
 .profile-header .back-button:hover {
-  color: var(--primary-hover);
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+
+.profile-header .back-button:active {
+  transform: scale(0.93);
 }
 
 .profile-card {
@@ -51,7 +57,7 @@
   box-shadow: var(--shadow-xl);
   backdrop-filter: blur(24px);
   text-align: center;
-  transition: all 0.25s ease;
+  transition: background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
 }
 
 .profile-card:hover {
@@ -99,7 +105,7 @@
   color: var(--primary);
   font-size: 14px;
   font-weight: 700;
-  transition: all 0.2s ease;
+  transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
   cursor: pointer;
 }
 
@@ -138,7 +144,7 @@
   border-bottom: 1px solid var(--border-subtle);
   cursor: pointer;
   text-align: left;
-  transition: all 0.2s ease;
+  transition: background 0.2s ease, border-color 0.2s ease;
 }
 
 .menu-item:hover {
@@ -206,7 +212,7 @@
   padding: 12px 0;
   border-bottom: 1px solid var(--border-subtle);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
 }
 
 .setting-item:hover {

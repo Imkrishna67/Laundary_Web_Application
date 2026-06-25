@@ -55,14 +55,11 @@ body {
 }
 
 .icon-button,
-.back-button,
 .google-button,
 .category-tab,
 .slot-button,
 .add-button,
 .quantity-button,
-.address-back-button,
-.schedule-back-button,
 .edit-profile-button,
 .secondary-button,
 .home-button,
@@ -168,7 +165,6 @@ textarea::placeholder {
 .track-button:active,
 .view-cart-button:active,
 .icon-button:active,
-.back-button:active,
 .google-button:active,
 .category-tab:active,
 .slot-button:active,
@@ -176,14 +172,6 @@ textarea::placeholder {
 .quantity-button:active {
   transform: scale(0.97);
 }
-
-*,
-*::before,
-*::after {
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-@media (hover: hover) {
   .service-card:hover,
   .cart-item:hover,
   .order-card:hover,

@@ -2,6 +2,14 @@ import { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import '../order-tracking.css'
 
+function BackIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M15 18 9 12l6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
+}
+
 const STATUS_STEPS = [
   { id: 'placed', label: 'Order Placed', icon: '📝' },
   { id: 'picked-up', label: 'Picked Up', icon: '🚚' },
@@ -39,7 +47,7 @@ function OrderTrackingPage() {
     <main className="tracking-page">
       <header className="tracking-header">
         <button className="back-button" type="button" onClick={() => navigate('/home')} aria-label="Go back">
-          ← Back
+          <BackIcon />
         </button>
         <h1>Track Order</h1>
         <div className="order-id-badge">Order ID: {order.id}</div>

@@ -9,7 +9,7 @@
 
 .history-page {
   min-height: 100svh;
-  padding: 24px 14px 36px;
+  padding: 24px 14px calc(66px + env(safe-area-inset-bottom));
   background: var(--background);
   animation: pageFadeIn 0.4s ease;
 }
@@ -28,21 +28,24 @@
 }
 
 .back-button {
-  position: absolute;
-  left: 0;
-  top: 4px;
+  width: 24px;
+  height: 16px;
   border: 0;
-  background: transparent;
-  color: var(--primary);
-  font-size: 14px;
-  font-weight: 700;
-  cursor: pointer;
-  padding: 4px 8px;
-  transition: color 0.2s ease;
+  border-radius: 8px;
+  background: var(--surface-raised);
+  color: var(--text-secondary);
+  display: grid;
+  place-items: center;
+  transition: background 0.2s ease, color 0.2s ease;
 }
 
 .back-button:hover {
-  color: var(--primary-hover);
+  background: var(--primary-soft);
+  color: var(--primary);
+}
+
+.back-button:active {
+  transform: scale(0.93);
 }
 
 .tabs {
@@ -66,7 +69,7 @@
   font-size: 13px;
   font-weight: 700;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: color 0.2s ease, background 0.2s ease;
 }
 
 .tab:hover {
@@ -108,7 +111,7 @@
   background: var(--surface);
   border: 1.5px solid var(--border);
   box-shadow: var(--shadow-md);
-  transition: all 0.25s ease;
+  transition: background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
 }
 
 .order-card:hover {
@@ -207,7 +210,7 @@
   color: var(--primary);
   font-size: 12px;
   font-weight: 800;
-  transition: all 0.2s ease;
+  transition: color 0.2s ease, background 0.2s ease;
 }
 
 .reorder-button:hover {
@@ -226,7 +229,7 @@
   background: var(--surface);
   border: 1.5px solid var(--border);
   box-shadow: var(--shadow-md);
-  transition: all 0.25s ease;
+  transition: background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
 }
 
 .detail-card:hover {
@@ -334,7 +337,7 @@
   background: linear-gradient(135deg, var(--primary), var(--secondary));
   color: var(--primary-on);
   box-shadow: var(--shadow-glow-primary);
-  transition: all 0.25s ease;
+  transition: background 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
   position: relative;
   overflow: hidden;
 }
@@ -358,7 +361,7 @@
   background: var(--surface-raised);
   color: var(--primary);
   border: 1.5px solid var(--border-strong);
-  transition: all 0.2s ease;
+  transition: color 0.2s ease, background 0.2s ease;
 }
 
 .secondary-button:hover {
@@ -375,7 +378,7 @@
   font-size: 15px;
   font-weight: 800;
   border: 1.5px solid rgba(239, 68, 68, 0.2);
-  transition: all 0.2s ease;
+  transition: color 0.2s ease, background 0.2s ease;
 }
 
 .help-button:hover {
@@ -401,6 +404,44 @@
   color: var(--text);
   font-size: 16px;
   font-weight: 900;
+}
+
+@media (max-width: 480px) {
+  .history-page {
+    padding: 20px 12px calc(66px + env(safe-area-inset-bottom));
+  }
+
+  .history-header {
+    margin-bottom: 16px;
+  }
+
+  .history-header h1 {
+    font-size: 22px;
+  }
+
+  .tabs {
+    padding: 4px;
+    gap: 4px;
+    margin-bottom: 14px;
+  }
+
+  .tab {
+    min-height: 38px;
+    font-size: 12px;
+    padding: 0 12px;
+  }
+
+  .order-card {
+    padding: 14px;
+  }
+
+  .order-services {
+    font-size: 13px;
+  }
+
+  .detail-card {
+    padding: 16px;
+  }
 }
 
 @media (min-width: 1024px) {

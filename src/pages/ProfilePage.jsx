@@ -2,6 +2,14 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import '../profile.css'
 
+function BackIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M15 18 9 12l6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
+}
+
 function ProfilePage() {
   const navigate = useNavigate()
   const [notifications, setNotifications] = useState(true)
@@ -34,7 +42,9 @@ function ProfilePage() {
   return (
     <main className="profile-page">
       <header className="profile-header">
-        <button type="button" className="back-button" onClick={() => navigate(-1)}>← Back</button>
+        <button type="button" className="back-button" onClick={() => navigate(-1)} aria-label="Go back">
+          <BackIcon />
+        </button>
         <h1>Profile</h1>
       </header>
 

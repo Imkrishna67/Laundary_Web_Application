@@ -2,6 +2,14 @@ import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import '../home.css'
 
+function BackIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M15 18 9 12l6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
+}
+
 const serviceCatalog = [
   { id: 'regular-wash', name: 'Regular Wash', price: 80 },
   { id: 'premium-wash', name: 'Premium Wash', price: 120 },
@@ -123,7 +131,7 @@ function OrdersPage() {
     <main className="order-review-page">
       <header className="order-header">
         <button className="back-button" type="button" onClick={() => navigate('/address')} aria-label="Go back">
-          ←
+          <BackIcon />
         </button>
         <h1>Order Review</h1>
       </header>

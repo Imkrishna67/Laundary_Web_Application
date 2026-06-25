@@ -1,19 +1,32 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { ThemeContext } from './ThemeContextValues.jsx'
 
 export function ThemeProvider({ children }) {
-  const [theme, setTheme] = useState('dark')
-
-  useEffect(() => {
+  const getInitialTheme = () => {
+    if (typeof window === 'undefined') return 'dark'
     try {
-      localStorage.setItem('quickwashTheme', theme)
+      return localStorage.getItem('quickwashTheme') === 'light' ? 'light' : 'dark'
+    } catch {
+      return 'dark'
+    }
+  }
+
+  const [theme, setTheme] = useState(getInitialTheme)
+
+  if (typeof document !== 'undefined') {
+    document.documentElement.setAttribute('data-theme', theme)
+  }
+
+  const toggle = () => {
+    const next = theme === 'dark' ? 'light' : 'dark'
+    setTheme(next)
+    document.documentElement.setAttribute('data-theme', next)
+    try {
+      localStorage.setItem('quickwashTheme', next)
     } catch {
       // ignore storage errors
     }
-    document.documentElement.setAttribute('data-theme', theme)
-  }, [theme])
-
-  const toggle = () => setTheme((t) => (t === 'dark' ? 'light' : 'dark'))
+  }
 
   const value = useMemo(() => ({ theme, toggle }), [theme])
 

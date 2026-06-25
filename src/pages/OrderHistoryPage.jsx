@@ -4,6 +4,14 @@ import { useParams } from 'react-router-dom'
 import { orderService } from '../services/api'
 import '../order-history.css'
 
+function BackIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M15 18 9 12l6-6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
+}
+
 const TABS = [
   { id: 'ongoing', label: 'Ongoing' },
   { id: 'completed', label: 'Completed' },
@@ -122,8 +130,8 @@ function OrderHistoryDetailView({ orderId, onBack }) {
         <header className="history-header">
           <h1>Order Not Found</h1>
         </header>
-        <button type="button" className="back-button" onClick={onBack}>
-          ← Back to Orders
+        <button type="button" className="back-button" onClick={onBack} aria-label="Back to Orders">
+          <BackIcon />
         </button>
       </main>
     )
@@ -138,8 +146,8 @@ function OrderHistoryDetailView({ orderId, onBack }) {
   return (
     <main className="history-page">
       <header className="history-header">
-        <button type="button" className="back-button" onClick={onBack}>
-          ← Back
+        <button type="button" className="back-button" onClick={onBack} aria-label="Go back">
+          <BackIcon />
         </button>
         <h1>Order Details</h1>
       </header>
