@@ -328,19 +328,15 @@ function readAddresses() {
     const storedAddresses = localStorage.getItem('quickwashAddresses')
 
     if (storedAddresses) {
-      return JSON.parse(storedAddresses)
+      const addresses = JSON.parse(storedAddresses)
+      const filtered = addresses.filter((addr) => addr.id !== 'address-demo')
+      if (filtered.length !== addresses.length) {
+        localStorage.setItem('quickwashAddresses', JSON.stringify(filtered))
+      }
+      return filtered
     }
 
-    return [
-      {
-        id: 'address-demo',
-        houseNo: 'A-102',
-        street: 'Green Park',
-        city: 'New Delhi',
-        pincode: '110016',
-        landmark: 'Near Metro Station',
-      },
-    ]
+    return []
   } catch {
     return []
   }

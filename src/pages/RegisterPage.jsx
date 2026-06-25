@@ -384,6 +384,18 @@ function RegisterPage() {
           <div className="login-link-row">
             Already have an account? <Link to="/" className="signup-link">Login</Link>
           </div>
+          <button
+            type="button"
+            className="clear-storage-button"
+            onClick={() => {
+              localStorage.removeItem('quickwashUser')
+              localStorage.removeItem('quickwashTheme')
+              localStorage.removeItem('quickwashLastOrder')
+              window.location.reload()
+            }}
+          >
+            Clear Old Data
+          </button>
         </div>
       </section>
     </main>

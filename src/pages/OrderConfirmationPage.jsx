@@ -50,10 +50,14 @@ function OrderConfirmationPage() {
 
           <div className="summary-section">
             <h3>Delivery Address</h3>
-            <p className="address-summary">
-              {order.address.houseNo}, {order.address.street}, {order.address.city} - {order.address.pincode}
-              {order.address.landmark ? ` · ${order.address.landmark}` : ''}
-            </p>
+            {order.address ? (
+              <p className="address-summary">
+                {order.address.houseNo}, {order.address.street}, {order.address.city} - {order.address.pincode}
+                {order.address.landmark ? ` · ${order.address.landmark}` : ''}
+              </p>
+            ) : (
+              <p className="address-summary">No address selected.</p>
+            )}
           </div>
 
           <div className="total-summary">
@@ -108,14 +112,7 @@ function readOrderConfirmation() {
       deliveryDate: addDaysToInputValue(getTodayInputValue(), 1),
       deliverySlot: 'Evening · 6:00 PM - 10:00 PM',
     },
-    address: {
-      id: 'demo-address',
-      houseNo: 'A-102',
-      street: 'Green Park',
-      city: 'New Delhi',
-      pincode: '110016',
-      landmark: 'Near Metro Station',
-    },
+    address: null,
     totals: {
       subtotal: 160,
       deliveryCharge: 40,

@@ -30,7 +30,7 @@ function ProfilePage() {
   }
 
   const storedUser = getStoredUser()
-  const fullName = storedUser.fullName || 'User'
+  const fullName = storedUser.fullName ? storedUser.fullName : 'User'
   const mobile = storedUser.mobile || ''
   const email = storedUser.email || storedUser.identifier || ''
 

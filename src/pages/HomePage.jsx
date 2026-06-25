@@ -69,11 +69,11 @@ function getUserName() {
     if (!storedUser) return 'there'
 
     const user = JSON.parse(storedUser)
-    const identifier = user.identifier || ''
+    const name = user.fullName || user.identifier || 'there'
 
-    if (!identifier) return 'there'
-    if (identifier.includes('@')) return identifier.split('@')[0]
-    return identifier.slice(0, 4)
+    if (!name) return 'there'
+    if (name.includes('@')) return name.split('@')[0]
+    return name.split(' ')[0]
   } catch {
     return 'there'
   }

@@ -477,6 +477,26 @@
   font-size: 14px;
 }
 
+.clear-storage-button {
+  display: block;
+  margin: 14px auto 0;
+  padding: 8px 16px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.clear-storage-button:hover {
+  background: var(--danger-soft);
+  color: var(--danger);
+  border-color: var(--danger);
+}
+
 @media (min-width: 1024px) {
   .login-page {
     padding: 48px clamp(24px, 5vw, 120px);
