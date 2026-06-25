@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import '../login.css'
 
-const apiBaseUrl = 'https://quickwash-backend.onrender.com'
+const apiBaseUrl = 'https://laundary-web-application.vercel.app'
 
 function validateIdentifier(value) {
   const trimmedValue = value.trim()
