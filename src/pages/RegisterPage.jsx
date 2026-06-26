@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import '../login.css'
 
-const apiBaseUrl = 'https://laundary-web-application.vercel.app'
+const apiBaseUrl = 'https://quickwash-backend.onrender.com'
 
 function validateFullName(value) {
   const trimmedValue = value.trim()
@@ -76,7 +76,6 @@ function RegisterPage() {
   const [error, setError] = useState('')
   const [successMessage, setSuccessMessage] = useState('')
   const [fieldErrors, setFieldErrors] = useState({})
-
   const [showTerms, setShowTerms] = useState(false)
 
   function clearFieldError(field) {
@@ -162,8 +161,6 @@ function RegisterPage() {
       setIsLoading(false)
     }
   }
-
-
 
   return (
     <main className="login-page">
