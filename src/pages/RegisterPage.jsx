@@ -127,7 +127,7 @@ function RegisterPage() {
         body: JSON.stringify({
           fullName: fullName.trim(),
           mobile: normalizeMobile(mobile),
-          email: email.trim().toLowerCase(),
+          email: email.trim(),
           password,
         }),
       })
@@ -143,7 +143,7 @@ function RegisterPage() {
         JSON.stringify({
           fullName: fullName.trim(),
           mobile: normalizeMobile(mobile),
-          email: email.trim().toLowerCase(),
+          email: email.trim(),
           registeredAt: new Date().toISOString(),
         }),
       )
