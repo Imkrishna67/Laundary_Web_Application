@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import '../login.css'
 
 const apiBaseUrl = 'https://quickwash-backend.onrender.com'
@@ -64,6 +64,7 @@ function normalizeMobile(value) {
 }
 
 function RegisterPage() {
+  const navigate = useNavigate()
   const [fullName, setFullName] = useState('')
   const [mobile, setMobile] = useState('')
   const [email, setEmail] = useState('')
@@ -147,7 +148,15 @@ function RegisterPage() {
           registeredAt: new Date().toISOString(),
         }),
       )
-      setSuccessMessage(data.message || 'Account created successfully. You can login now.')
+      setFullName('')
+      setMobile('')
+      setEmail('')
+      setPassword('')
+      setConfirmPassword('')
+      setTermsAccepted(false)
+      setSuccessMessage('')
+      setFieldErrors({})
+      navigate('/')
     } catch (caughtError) {
       const isConnectionError =
         caughtError instanceof TypeError && caughtError.message === 'Failed to fetch'
