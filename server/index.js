@@ -3,18 +3,12 @@ import express from 'express'
 import mongoose from 'mongoose'
 import bcrypt from 'bcryptjs'
 import dotenv from 'dotenv'
-import path from 'path'
-import { fileURLToPath } from 'url'
 import User from './models/User.js'
 
 dotenv.config()
 
 const app = express()
 const port = process.env.PORT || 10000
-
-// __dirname fix (ES modules)
-const __filename = fileURLToPath(import.meta.url)
-const __dirname = path.dirname(__filename)
 
 // middleware
 app.use(express.json())
@@ -40,7 +34,7 @@ app.get("/api/health", (req, res) => {
 
 // root
 app.get("/", (req, res) => {
-  res.send("QuickWash Backend Running 🚀")
+  res.json({ message: "QuickWash Backend Running 🚀" })
 })
 
 // REGISTER
@@ -103,14 +97,6 @@ app.post('/api/auth/login', async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message })
   }
-})
-
-// ---------------- FRONTEND SERVE ----------------
-
-app.use(express.static(path.join(__dirname, "../dist")))
-
-app.get("/*", (req, res) => {
-  res.sendFile(path.join(__dirname, "../dist/index.html"))
 })
 
 // ---------------- START ----------------
