@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes } from 'react-router-dom'
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { ThemeProvider } from './contexts/ThemeContext.jsx'
 import AddressPage from './pages/AddressPage.jsx'
 import CartPage from './pages/CartPage.jsx'
@@ -12,9 +12,14 @@ import ProfilePage from './pages/ProfilePage.jsx'
 import RegisterPage from './pages/RegisterPage.jsx'
 import SchedulePage from './pages/SchedulePage.jsx'
 import ServiceSelectionPage from './pages/ServiceSelectionPage.jsx'
+import BottomNav from './components/BottomNav.jsx'
 import './index.css'
 
 function App() {
+  const location = useLocation()
+  const hideNavPaths = ['/', '/register']
+  const shouldShowNav = !hideNavPaths.includes(location.pathname)
+
   return (
     <ThemeProvider>
       <Routes>
@@ -33,6 +38,7 @@ function App() {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      {shouldShowNav && <BottomNav />}
     </ThemeProvider>
   )
 }

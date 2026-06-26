@@ -270,25 +270,6 @@ function HomePage() {
       <button className="pickup-button" type="button" onClick={() => navigate('/services')}>
         Book a Pickup
       </button>
-
-      <nav className="bottom-nav" aria-label="Bottom navigation">
-        <button className="active" type="button" aria-label="Home" aria-current="page">
-          <HomeIcon />
-          Home
-        </button>
-        <button type="button" aria-label="Orders" onClick={() => navigate('/orders')}>
-          <OrdersIcon />
-          Orders
-        </button>
-        <button type="button" aria-label="Schedule" onClick={() => navigate('/schedule')}>
-          <ScheduleIcon />
-          Schedule
-        </button>
-        <button type="button" aria-label="Profile" onClick={() => navigate('/profile')}>
-          <ProfileSmallIcon />
-          Profile
-        </button>
-      </nav>
     </main>
   )
 }
