@@ -4,6 +4,8 @@ import mongoose from 'mongoose'
 import bcrypt from 'bcryptjs'
 import dotenv from 'dotenv'
 import User from './models/User.js'
+import Service from './models/Service.js'
+import Order from './models/Order.js'
 
 dotenv.config()
 
@@ -88,12 +90,84 @@ app.post('/api/auth/login', async (req, res) => {
     res.json({
       message: "Login successful! Welcome to QuickWash.",
       user: {
+        id: user._id,
         fullName: user.fullName,
         email: user.email,
         mobile: user.mobile
       }
     })
 
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+})
+
+// ---------------- SERVICES ----------------
+
+// GET all services
+app.get('/api/services', async (req, res) => {
+  try {
+    const services = await Service.find()
+    res.json(services)
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+})
+
+// POST add service
+app.post('/api/services', async (req, res) => {
+  try {
+    const service = new Service(req.body)
+    await service.save()
+    res.status(201).json(service)
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+})
+
+// ---------------- ORDERS ----------------
+
+// POST place order
+app.post('/api/orders', async (req, res) => {
+  try {
+    const order = new Order(req.body)
+    await order.save()
+    res.status(201).json({ message: "Order placed successfully!", order })
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+})
+
+// GET user orders
+app.get('/api/orders/:userId', async (req, res) => {
+  try {
+    const orders = await Order.find({ userId: req.params.userId }).sort({ createdAt: -1 })
+    res.json(orders)
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+})
+
+// GET single order
+app.get('/api/orders/detail/:orderId', async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.orderId)
+    if (!order) return res.status(404).json({ message: "Order not found." })
+    res.json(order)
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+})
+
+// PATCH update order status
+app.patch('/api/orders/:orderId/status', async (req, res) => {
+  try {
+    const order = await Order.findByIdAndUpdate(
+      req.params.orderId,
+      { status: req.body.status },
+      { new: true }
+    )
+    res.json(order)
   } catch (err) {
     res.status(500).json({ error: err.message })
   }
