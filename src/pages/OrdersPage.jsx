@@ -1,6 +1,8 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import '../home.css'
+
+const apiBaseUrl = 'https://quickwash-backend.onrender.com'
 
 function BackIcon() {
   return (
@@ -9,21 +11,6 @@ function BackIcon() {
     </svg>
   )
 }
-
-const serviceCatalog = [
-  { id: 'regular-wash', name: 'Regular Wash', price: 80 },
-  { id: 'premium-wash', name: 'Premium Wash', price: 120 },
-  { id: 'blanket-wash', name: 'Blanket Wash', price: 250 },
-  { id: 'shirt-dry-clean', name: 'Shirt Dry Clean', price: 80 },
-  { id: 'suit-dry-clean', name: 'Suit Dry Clean', price: 350 },
-  { id: 'dress-dry-clean', name: 'Dress Dry Clean', price: 250 },
-  { id: 'shirt-iron', name: 'Shirt Iron', price: 40 },
-  { id: 'pant-iron', name: 'Pant Iron', price: 50 },
-  { id: 'saree-iron', name: 'Saree Iron', price: 120 },
-  { id: 'leather-jacket', name: 'Leather Jacket', price: 800 },
-  { id: 'comforter-care', name: 'Comforter Care', price: 900 },
-  { id: 'sneaker-clean', name: 'Sneaker Clean', price: 399 },
-]
 
 function readCartItems() {
   try {
@@ -65,22 +52,47 @@ function readOrderTotals() {
   }
 }
 
+function formatDate(dateValue) {
+  if (!dateValue) return ''
+  const date = new Date(`${dateValue}T00:00:00`)
+  return date.toLocaleDateString('en-IN', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  })
+}
+
 function OrdersPage() {
   const navigate = useNavigate()
   const cartItems = readCartItems()
   const schedule = readSchedule()
   const [paymentMethod, setPaymentMethod] = useState('cod')
+  const [services, setServices] = useState([])
+
+  // Fetch services from MongoDB
+  useEffect(() => {
+    async function fetchServices() {
+      try {
+        const response = await fetch(`${apiBaseUrl}/api/services`)
+        const data = await response.json()
+        setServices(data)
+      } catch (err) {
+        console.error('Failed to fetch services:', err)
+      }
+    }
+    fetchServices()
+  }, [])
 
   const selectedServices = useMemo(
     () =>
-      serviceCatalog
-        .filter((service) => (cartItems[service.id] || 0) > 0)
+      services
+        .filter((service) => (cartItems[service._id] || 0) > 0)
         .map((service) => ({
           ...service,
-          quantity: cartItems[service.id],
-          lineTotal: service.price * cartItems[service.id],
+          quantity: cartItems[service._id],
+          lineTotal: service.price * cartItems[service._id],
         })),
-    [cartItems],
+    [cartItems, services],
   )
 
   const totals = readOrderTotals()
@@ -91,36 +103,34 @@ function OrdersPage() {
   const formattedPickupDate = schedule?.pickupDate ? formatDate(schedule.pickupDate) : ''
   const formattedDeliveryDate = schedule?.deliveryDate ? formatDate(schedule.deliveryDate) : ''
 
-  function formatDate(dateValue) {
-    if (!dateValue) return ''
-    const date = new Date(`${dateValue}T00:00:00`)
-    return date.toLocaleDateString('en-IN', {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric',
-    })
-  }
-
   function handlePlaceOrder() {
-    if (selectedServices.length === 0 || !selectedAddress || !schedule) {
-      return
-    }
+    if (selectedServices.length === 0 || !selectedAddress || !schedule) return
+
     const orderCount = localStorage.getItem('quickwashOrderCount') || '0'
     const nextOrderCount = parseInt(orderCount, 10) + 1
     localStorage.setItem('quickwashOrderCount', String(nextOrderCount))
+
     const order = {
       id: `QW-${String(1000 + nextOrderCount).slice(1)}`,
-      services: selectedServices,
+      services: selectedServices.map((s) => ({
+        id: s._id,
+        name: s.name,
+        price: s.price,
+        quantity: s.quantity,
+        lineTotal: s.lineTotal,
+      })),
       schedule,
       address: selectedAddress,
-      paymentMethod,
+      paymentMethod: paymentMethod === 'cod' ? 'Cash on Delivery' : 'Online Payment',
       subtotal: totals.subtotal,
       deliveryCharge: totals.deliveryCharge,
       discount: totals.discount,
       total: totals.total,
-      status: 'confirmed',
+      promoCode: totals.promoCode || '',
+      status: 'Order Placed',
       createdAt: new Date().toISOString(),
     }
+
     localStorage.setItem('quickwashLastOrder', JSON.stringify(order))
     localStorage.setItem('quickwashCart', '{}')
     localStorage.setItem('quickwashPickupChecked', 'true')
@@ -139,17 +149,19 @@ function OrdersPage() {
       <section className="review-card">
         <h2>Services</h2>
         <div className="review-services-list">
-          {selectedServices.map((service) => (
-            <div key={service.id} className="review-service-item">
-              <span className="review-service-name">{service.name}</span>
-              <span className="review-service-qty">×{service.quantity}</span>
-              <span className="review-service-price">₹{service.lineTotal}</span>
-            </div>
-          ))}
+          {selectedServices.length === 0 ? (
+            <p style={{ color: '#aaa' }}>No services selected.</p>
+          ) : (
+            selectedServices.map((service) => (
+              <div key={service._id} className="review-service-item">
+                <span className="review-service-name">{service.name}</span>
+                <span className="review-service-qty">×{service.quantity}</span>
+                <span className="review-service-price">₹{service.lineTotal}</span>
+              </div>
+            ))
+          )}
         </div>
-        <button className="edit-link" type="button" onClick={() => navigate('/cart')}>
-          Edit
-        </button>
+        <button className="edit-link" type="button" onClick={() => navigate('/cart')}>Edit</button>
       </section>
 
       <section className="review-card">
@@ -164,20 +176,14 @@ function OrdersPage() {
             {formattedDeliveryDate} · {schedule?.deliverySlot?.split(' · ')[0] || 'Select slot'}
           </p>
         </div>
-        <button className="edit-link" type="button" onClick={() => navigate('/schedule')}>
-          Edit
-        </button>
+        <button className="edit-link" type="button" onClick={() => navigate('/schedule')}>Edit</button>
       </section>
 
       <section className="review-card">
         <h2>Address</h2>
         {selectedAddress ? (
           <div className="review-address-info">
-            <p>
-              <strong>
-                {selectedAddress.houseNo}, {selectedAddress.street}
-              </strong>
-            </p>
+            <p><strong>{selectedAddress.houseNo}, {selectedAddress.street}</strong></p>
             <p>
               {selectedAddress.city} - {selectedAddress.pincode}
               {selectedAddress.landmark && ` · ${selectedAddress.landmark}`}
@@ -186,9 +192,7 @@ function OrdersPage() {
         ) : (
           <p className="review-no-address">No address selected</p>
         )}
-        <button className="edit-link" type="button" onClick={() => navigate('/address')}>
-          Edit
-        </button>
+        <button className="edit-link" type="button" onClick={() => navigate('/address')}>Edit</button>
       </section>
 
       <section className="review-card">

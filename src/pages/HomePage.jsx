@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom'
 import { useTheme } from '../contexts/ThemeContextValues.jsx'
 import '../home.css'
 
+const apiBaseUrl = 'https://quickwash-backend.onrender.com'
+
 function ThemeToggle() {
   const { theme, toggle } = useTheme()
   return (
@@ -31,60 +33,25 @@ const promoSlides = [
 ]
 
 const services = [
-  {
-    name: 'Wash',
-    description: 'Everyday clothes',
-    icon: WashIcon,
-  },
-  {
-    name: 'Dry Clean',
-    description: 'Suits & formal wear',
-    icon: DryIcon,
-  },
-  {
-    name: 'Iron',
-    description: 'Steam & press',
-    icon: IronIcon,
-  },
-  {
-    name: 'Shoe Clean',
-    description: 'Sneakers & sports shoes',
-    icon: ShoeIcon,
-  },
-  {
-    name: 'Bedding',
-    description: 'Bedsheets & blankets',
-    icon: BeddingIcon,
-  },
-  {
-    name: 'Fold & Pack',
-    description: 'Neat finishing',
-    icon: FoldIcon,
-  },
+  { name: 'Wash', description: 'Everyday clothes', icon: WashIcon },
+  { name: 'Dry Clean', description: 'Suits & formal wear', icon: DryIcon },
+  { name: 'Iron', description: 'Steam & press', icon: IronIcon },
+  { name: 'Shoe Clean', description: 'Sneakers & sports shoes', icon: ShoeIcon },
+  { name: 'Bedding', description: 'Bedsheets & blankets', icon: BeddingIcon },
+  { name: 'Fold & Pack', description: 'Neat finishing', icon: FoldIcon },
 ]
 
 function getUserName() {
   try {
     const storedUser = localStorage.getItem('quickwashUser')
     if (!storedUser) return 'there'
-
     const user = JSON.parse(storedUser)
     const name = user.fullName || user.identifier || 'there'
-
     if (!name) return 'there'
     if (name.includes('@')) return name.split('@')[0]
     return name.split(' ')[0]
   } catch {
     return 'there'
-  }
-}
-
-function readLastOrder() {
-  try {
-    const stored = localStorage.getItem('quickwashLastOrder')
-    return stored ? JSON.parse(stored) : null
-  } catch {
-    return null
   }
 }
 
@@ -98,30 +65,37 @@ function formatOrderDate(isoString) {
   })
 }
 
-function getOrderItemCount(order) {
-  if (!order?.services) return 0
-  return order.services.reduce((count, service) => count + (service.quantity || 0), 0)
-}
-
 function HomePage() {
   const navigate = useNavigate()
   const [searchText, setSearchText] = useState('')
   const [activeSlide, setActiveSlide] = useState(0)
-  const [pickupScheduled, setPickupScheduled] = useState(() => {
-    try {
-      return localStorage.getItem('quickwashPickupChecked') === 'true'
-    } catch {
-      return false
+  const [activeOrder, setActiveOrder] = useState(null)
+
+  // Fetch latest active order from MongoDB
+  useEffect(() => {
+    async function fetchActiveOrder() {
+      try {
+        const user = JSON.parse(localStorage.getItem('quickwashUser') || '{}')
+        if (!user.email) return
+
+        const response = await fetch(`${apiBaseUrl}/api/orders/${encodeURIComponent(user.email)}`)
+        const orders = await response.json()
+
+        const ongoing = orders.find((order) =>
+          !['Delivered', 'Cancelled'].includes(order.status)
+        )
+        setActiveOrder(ongoing || null)
+      } catch (err) {
+        console.error('Failed to fetch active order:', err)
+      }
     }
-  })
-  const lastOrder = readLastOrder()
-  const orderItemCount = getOrderItemCount(lastOrder)
+    fetchActiveOrder()
+  }, [])
 
   useEffect(() => {
     const timer = window.setInterval(() => {
       setActiveSlide((currentIndex) => (currentIndex + 1) % promoSlides.length)
     }, 4000)
-
     return () => window.clearInterval(timer)
   }, [])
 
@@ -153,9 +127,7 @@ function HomePage() {
       </header>
 
       <div className="search-wrapper" aria-label="Search services">
-        <span className="search-icon-wrap">
-          <SearchIcon />
-        </span>
+        <span className="search-icon-wrap"><SearchIcon /></span>
         <input
           type="search"
           value={searchText}
@@ -201,9 +173,7 @@ function HomePage() {
                 type="button"
                 onClick={() => navigate('/services')}
               >
-                <span className="service-icon">
-                  <ServiceIcon />
-                </span>
+                <span className="service-icon"><ServiceIcon /></span>
                 <span>
                   <h3>{service.name}</h3>
                   <p>{service.description}</p>
@@ -213,37 +183,31 @@ function HomePage() {
           })}
         </div>
 
-        {filteredServices.length === 0 ? (
+        {filteredServices.length === 0 && (
           <p className="no-results">No services found for your search.</p>
-        ) : null}
+        )}
       </section>
 
-      {lastOrder && (
+      {activeOrder && (
         <section className="active-order-card" aria-labelledby="active-order-title">
           <div className="order-top">
             <div>
               <h2 id="active-order-title">Active Order</h2>
               <p className="order-meta">
-                Order #{lastOrder.id} · {orderItemCount} item{orderItemCount !== 1 ? 's' : ''}
+                #{activeOrder._id.slice(-8).toUpperCase()} · {activeOrder.services.reduce((c, s) => c + s.quantity, 0)} items
               </p>
             </div>
-            <span className="status-pill">In Progress</span>
+            <span className="status-pill">{activeOrder.status}</span>
           </div>
 
           <div className="order-timeline">
             <label className="timeline-item active">
-              <input
-                className="timeline-checkbox"
-                type="checkbox"
-                checked={pickupScheduled}
-                disabled={pickupScheduled}
-                readOnly
-              />
+              <input className="timeline-checkbox" type="checkbox" checked readOnly />
               <div>
                 <h3>Pickup scheduled</h3>
                 <p>
-                  {lastOrder.schedule?.pickupDate
-                    ? `${formatOrderDate(lastOrder.schedule.pickupDate)} · ${lastOrder.schedule.pickupSlot?.split(' · ')[0] || 'Slot pending'}`
+                  {activeOrder.pickupDate
+                    ? `${formatOrderDate(activeOrder.pickupDate)} · ${activeOrder.pickupTime?.split(' · ')[0] || 'Slot pending'}`
                     : 'Pickup pending'}
                 </p>
               </div>
@@ -253,8 +217,8 @@ function HomePage() {
               <div>
                 <h3>Washing in progress</h3>
                 <p>
-                  {lastOrder.schedule?.deliveryDate
-                    ? `Expected by ${formatOrderDate(lastOrder.schedule.deliveryDate)}`
+                  {activeOrder.deliveryDate
+                    ? `Expected by ${formatOrderDate(activeOrder.deliveryDate)}`
                     : 'Expected soon'}
                 </p>
               </div>
@@ -273,8 +237,6 @@ function HomePage() {
     </main>
   )
 }
-
-
 
 function ProfileIcon() {
   return (
@@ -348,25 +310,6 @@ function FoldIcon() {
   )
 }
 
-function HomeIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path d="M3 11 12 3l9 8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M5 10v10h14V10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M9 20v-6h6v6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-    </svg>
-  )
-}
-
-function OrdersIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path d="M7 6h14M7 12h14M7 18h14" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-      <path d="M3 6h.01M3 12h.01M3 18h.01" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
-    </svg>
-  )
-}
-
 function CartIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -374,15 +317,6 @@ function CartIcon() {
       <path d="M6 6 5 3H3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
       <circle cx="9" cy="20" r="1.5" fill="currentColor" />
       <circle cx="18" cy="20" r="1.5" fill="currentColor" />
-    </svg>
-  )
-}
-
-function ScheduleIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" />
-      <path d="M12 7v5l3 2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
     </svg>
   )
 }
@@ -400,15 +334,6 @@ function MoonIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
       <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  )
-}
-
-function ProfileSmallIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <circle cx="12" cy="8" r="4" stroke="currentColor" strokeWidth="2" />
-      <path d="M4 21a8 8 0 0 1 16 0" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
     </svg>
   )
 }

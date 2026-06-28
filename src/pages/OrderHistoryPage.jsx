@@ -1,8 +1,8 @@
-import { useState, useMemo } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useParams } from 'react-router-dom'
-import { orderService } from '../services/api'
+import { useState, useEffect } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
 import '../order-history.css'
+
+const apiBaseUrl = 'https://quickwash-backend.onrender.com'
 
 function BackIcon() {
   return (
@@ -18,24 +18,46 @@ const TABS = [
   { id: 'cancelled', label: 'Cancelled' },
 ]
 
-const STATUS_BADGE_MAP = {
-  ongoing: { text: 'Ongoing', className: 'badge-ongoing' },
-  completed: { text: 'Completed', className: 'badge-completed' },
-  cancelled: { text: 'Cancelled', className: 'badge-cancelled' },
+const ONGOING_STATUSES = ['Order Placed', 'Picked Up', 'Washing', 'Ready', 'Out for Delivery']
+const COMPLETED_STATUSES = ['Delivered']
+const CANCELLED_STATUSES = ['Cancelled']
+
+function getTabFromStatus(status) {
+  if (COMPLETED_STATUSES.includes(status)) return 'completed'
+  if (CANCELLED_STATUSES.includes(status)) return 'cancelled'
+  return 'ongoing'
 }
 
 function OrderHistoryPage() {
   const navigate = useNavigate()
   const { id } = useParams()
   const [activeTab, setActiveTab] = useState('ongoing')
+  const [orders, setOrders] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
 
-  const orders = useMemo(() => orderService.getOrders(), [])
+  useEffect(() => {
+    async function fetchOrders() {
+      try {
+        const user = JSON.parse(localStorage.getItem('quickwashUser') || '{}')
+        if (!user.email) return
+
+        const response = await fetch(`${apiBaseUrl}/api/orders/${encodeURIComponent(user.email)}`)
+        const data = await response.json()
+        setOrders(data)
+      } catch (err) {
+        console.error('Failed to fetch orders:', err)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    fetchOrders()
+  }, [])
 
   if (id) {
     return <OrderHistoryDetailView orderId={id} onBack={() => navigate('/order-history')} />
   }
 
-  const filteredOrders = orders.filter((order) => order.status === activeTab)
+  const filteredOrders = orders.filter((order) => getTabFromStatus(order.status) === activeTab)
 
   return (
     <main className="history-page">
@@ -57,85 +79,120 @@ function OrderHistoryPage() {
         ))}
       </div>
 
-      <div className="orders-list">
-        {filteredOrders.length === 0 ? (
-          <div className="empty-state">
-            <p>No {activeTab} orders yet.</p>
-            <button className="back-button" type="button" onClick={() => navigate('/services')}>
-              Book a Service
-            </button>
-          </div>
-        ) : (
-          filteredOrders.map((order) => {
-            const badge = STATUS_BADGE_MAP[order.status] || STATUS_BADGE_MAP.ongoing
-            const serviceSummary = order.services
-              .map((s) => `${s.name} ×${s.quantity}`)
-              .join(', ')
+      {isLoading ? (
+        <div className="empty-state"><p>Loading orders...</p></div>
+      ) : (
+        <div className="orders-list">
+          {filteredOrders.length === 0 ? (
+            <div className="empty-state">
+              <p>No {activeTab} orders yet.</p>
+              <button className="back-button" type="button" onClick={() => navigate('/services')}>
+                Book a Service
+              </button>
+            </div>
+          ) : (
+            filteredOrders.map((order) => {
+              const tab = getTabFromStatus(order.status)
+              const badgeMap = {
+                ongoing: { text: order.status, className: 'badge-ongoing' },
+                completed: { text: 'Completed', className: 'badge-completed' },
+                cancelled: { text: 'Cancelled', className: 'badge-cancelled' },
+              }
+              const badge = badgeMap[tab]
+              const serviceSummary = order.services
+                .map((s) => `${s.name} ×${s.quantity}`)
+                .join(', ')
 
-            return (
-              <div
-                key={order.id}
-                className="order-card"
-                onClick={() => navigate(`/order-history/${order.id}`)}
-                role="button"
-                tabIndex={0}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault()
-                    navigate(`/order-history/${order.id}`)
-                  }
-                }}
-              >
-                <div className="order-card-top">
-                  <span className="order-id">{order.id}</span>
-                  <span className={`status-badge ${badge.className}`}>{badge.text}</span>
+              return (
+                <div
+                  key={order._id}
+                  className="order-card"
+                  onClick={() => navigate(`/order-history/${order._id}`)}
+                  role="button"
+                  tabIndex={0}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault()
+                      navigate(`/order-history/${order._id}`)
+                    }
+                  }}
+                >
+                  <div className="order-card-top">
+                    <span className="order-id">#{order._id.slice(-8).toUpperCase()}</span>
+                    <span className={`status-badge ${badge.className}`}>{badge.text}</span>
+                  </div>
+
+                  <p className="order-date">{formatDate(order.createdAt)}</p>
+                  <p className="order-services">{serviceSummary}</p>
+
+                  <div className="order-card-bottom">
+                    <span className="order-amount">₹{order.total}</span>
+                    {tab === 'completed' && (
+                      <button
+                        className="reorder-button"
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation()
+                          navigate('/services')
+                        }}
+                      >
+                        Reorder
+                      </button>
+                    )}
+                  </div>
                 </div>
-
-                <p className="order-date">{order.date}</p>
-                <p className="order-services">{serviceSummary}</p>
-
-                <div className="order-card-bottom">
-                  <span className="order-amount">₹{order.total}</span>
-                  {order.status === 'completed' && (
-                    <button
-                      className="reorder-button"
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        orderService.reorder(order.id)
-                        navigate('/cart')
-                      }}
-                    >
-                      Reorder
-                    </button>
-                  )}
-                </div>
-              </div>
-            )
-          })
-        )}
-      </div>
+              )
+            })
+          )}
+        </div>
+      )}
     </main>
   )
 }
 
 function OrderHistoryDetailView({ orderId, onBack }) {
-  const order = orderService.getOrderById(orderId)
   const navigate = useNavigate()
+  const [order, setOrder] = useState(null)
+  const [isLoading, setIsLoading] = useState(true)
   const [helpCopied, setHelpCopied] = useState(false)
+
+  useEffect(() => {
+    async function fetchOrder() {
+      try {
+        const response = await fetch(`${apiBaseUrl}/api/orders/detail/${orderId}`)
+        const data = await response.json()
+        setOrder(data)
+      } catch (err) {
+        console.error('Failed to fetch order:', err)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    fetchOrder()
+  }, [orderId])
+
+  if (isLoading) {
+    return <main className="history-page"><div className="empty-state"><p>Loading...</p></div></main>
+  }
 
   if (!order) {
     return (
       <main className="history-page">
         <header className="history-header">
+          <button type="button" className="back-button" onClick={onBack}><BackIcon /></button>
           <h1>Order Not Found</h1>
         </header>
-        <button type="button" className="back-button" onClick={onBack} aria-label="Back to Orders">
-          <BackIcon />
-        </button>
       </main>
     )
   }
+
+  const tab = getTabFromStatus(order.status)
+  const badgeMap = {
+    ongoing: { text: order.status, className: 'badge-ongoing' },
+    completed: { text: 'Completed', className: 'badge-completed' },
+    cancelled: { text: 'Cancelled', className: 'badge-cancelled' },
+  }
+  const badge = badgeMap[tab]
 
   function handleHelp() {
     navigator.clipboard.writeText('Support: +91 1800-123-4567 | support@quickwash.in')
@@ -154,23 +211,18 @@ function OrderHistoryDetailView({ orderId, onBack }) {
 
       <div className="detail-card">
         <div className="detail-top-row">
-          <span className="detail-order-id">{order.id}</span>
-          {(() => {
-            const badge = STATUS_BADGE_MAP[order.status] || STATUS_BADGE_MAP.ongoing
-            return <span className={`status-badge ${badge.className}`}>{badge.text}</span>
-          })()}
+          <span className="detail-order-id">#{order._id.slice(-8).toUpperCase()}</span>
+          <span className={`status-badge ${badge.className}`}>{badge.text}</span>
         </div>
 
-        <p className="detail-date">{order.date}</p>
+        <p className="detail-date">{formatDate(order.createdAt)}</p>
 
         <div className="detail-section">
           <h3>Services</h3>
-          {order.services.map((service) => (
-            <div className="detail-row" key={service.id}>
-              <span>
-                <strong>{service.name}</strong> × {service.quantity}
-              </span>
-              <span>₹{service.lineTotal}</span>
+          {order.services.map((service, index) => (
+            <div className="detail-row" key={index}>
+              <span><strong>{service.name}</strong> × {service.quantity}</span>
+              <span>₹{service.price * service.quantity}</span>
             </div>
           ))}
         </div>
@@ -183,7 +235,7 @@ function OrderHistoryDetailView({ orderId, onBack }) {
           </div>
           <div className="detail-row">
             <span>Slot</span>
-            <strong>{order.pickupSlot}</strong>
+            <strong>{order.pickupTime}</strong>
           </div>
         </div>
 
@@ -195,27 +247,14 @@ function OrderHistoryDetailView({ orderId, onBack }) {
           </div>
           <div className="detail-row">
             <span>Slot</span>
-            <strong>{order.deliverySlot}</strong>
+            <strong>{order.deliveryTime}</strong>
           </div>
         </div>
 
-        {order.pickupAddress && order.deliveryAddress && (
-          <div className="detail-addresses">
-            <div className="detail-section">
-              <h3>Pickup Address</h3>
-              <p className="detail-address">
-                {order.pickupAddress.houseNo}, {order.pickupAddress.street}, {order.pickupAddress.city} - {order.pickupAddress.pincode}
-                {order.pickupAddress.landmark ? ` · ${order.pickupAddress.landmark}` : ''}
-              </p>
-            </div>
-
-            <div className="detail-section">
-              <h3>Delivery Address</h3>
-              <p className="detail-address">
-                {order.deliveryAddress.houseNo}, {order.deliveryAddress.street}, {order.deliveryAddress.city} - {order.deliveryAddress.pincode}
-                {order.deliveryAddress.landmark ? ` · ${order.deliveryAddress.landmark}` : ''}
-              </p>
-            </div>
+        {order.address && (
+          <div className="detail-section">
+            <h3>Delivery Address</h3>
+            <p className="detail-address">{order.address}</p>
           </div>
         )}
 
@@ -245,36 +284,25 @@ function OrderHistoryDetailView({ orderId, onBack }) {
           <h3>Payment</h3>
           <div className="detail-row">
             <span>Method</span>
-            <strong>{order.paymentMethod || 'N/A'}</strong>
+            <strong>{order.paymentMethod || 'Cash on Delivery'}</strong>
           </div>
         </div>
       </div>
 
       <div className="detail-actions">
-        {order.status === 'ongoing' && (
-          <button
-            type="button"
-            className="primary-button"
-            onClick={() => navigate('/track-order')}
-          >
+        {tab === 'ongoing' && (
+          <button type="button" className="primary-button" onClick={() => navigate('/track-order')}>
             Track Order
           </button>
         )}
-        {order.status === 'completed' && (
-          <button
-            type="button"
-            className="primary-button"
-            onClick={() => {
-              orderService.reorder(order.id)
-              navigate('/cart')
-            }}
-          >
+        {tab === 'completed' && (
+          <button type="button" className="primary-button" onClick={() => navigate('/services')}>
             Reorder
           </button>
         )}
-         <button type="button" className="help-button" onClick={handleHelp}>
-           {helpCopied ? 'Copied!' : 'Need Help?'}
-         </button>
+        <button type="button" className="help-button" onClick={handleHelp}>
+          {helpCopied ? 'Copied!' : 'Need Help?'}
+        </button>
         <button type="button" className="secondary-button" onClick={onBack}>
           Back to Orders
         </button>
@@ -285,7 +313,7 @@ function OrderHistoryDetailView({ orderId, onBack }) {
 
 function formatDate(dateValue) {
   if (!dateValue) return ''
-  const date = new Date(`${dateValue}T00:00:00`)
+  const date = new Date(dateValue)
   return date.toLocaleDateString('en-IN', {
     day: 'numeric',
     month: 'short',

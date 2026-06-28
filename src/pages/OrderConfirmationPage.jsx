@@ -1,10 +1,65 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import '../order-confirmation.css'
 
+const apiBaseUrl = 'https://quickwash-backend.onrender.com'
+
 function OrderConfirmationPage() {
   const navigate = useNavigate()
+  const [savedOrderId, setSavedOrderId] = useState(null)
   const order = useMemo(() => readOrderConfirmation(), [])
+
+  // Save order to MongoDB
+  useEffect(() => {
+    async function saveOrder() {
+      try {
+        const user = JSON.parse(localStorage.getItem('quickwashUser') || '{}')
+        if (!user.email) return
+
+        const orderData = {
+          userId: user.email,
+          services: order.services.map((s) => ({
+            name: s.name,
+            price: s.lineTotal / s.quantity,
+            quantity: s.quantity,
+          })),
+          subtotal: order.totals.subtotal,
+          deliveryCharge: order.totals.deliveryCharge,
+          discount: order.totals.discount,
+          total: order.totals.total,
+          promoCode: order.totals.promoCode || '',
+          address: order.address
+            ? `${order.address.houseNo}, ${order.address.street}, ${order.address.city} - ${order.address.pincode}`
+            : '',
+          pickupDate: order.schedule.pickupDate,
+          pickupTime: order.schedule.pickupSlot,
+          deliveryDate: order.schedule.deliveryDate,
+          deliveryTime: order.schedule.deliverySlot,
+          specialInstructions: order.schedule.instructions || '',
+          status: 'Order Placed',
+        }
+
+        const response = await fetch(`${apiBaseUrl}/api/orders`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(orderData),
+        })
+
+        const data = await response.json()
+        if (data.order?._id) {
+          setSavedOrderId(data.order._id)
+          // Save order ID to localStorage for tracking
+          const lastOrder = JSON.parse(localStorage.getItem('quickwashLastOrder') || '{}')
+          lastOrder.mongoId = data.order._id
+          localStorage.setItem('quickwashLastOrder', JSON.stringify(lastOrder))
+        }
+      } catch (err) {
+        console.error('Failed to save order:', err)
+      }
+    }
+
+    saveOrder()
+  }, [order])
 
   return (
     <main className="confirmation-page">
@@ -19,7 +74,9 @@ function OrderConfirmationPage() {
         <h1 id="confirmation-title">Order Placed Successfully!</h1>
         <p>Your laundry request has been confirmed. We will pick up your order at the scheduled time.</p>
 
-        <div className="order-id-chip">Order ID: {order.orderId}</div>
+        <div className="order-id-chip">
+          Order ID: {savedOrderId ? savedOrderId.slice(-8).toUpperCase() : order.orderId}
+        </div>
 
         <div className="summary-card">
           <h2>Order Summary</h2>
@@ -85,15 +142,16 @@ function readOrderConfirmation() {
     if (storedOrder) {
       const order = JSON.parse(storedOrder)
       return {
-        orderId: order.id,
-        services: order.services,
-        schedule: order.schedule,
-        address: order.address,
+        orderId: order.id || 'QW-0001',
+        services: order.services || [],
+        schedule: order.schedule || {},
+        address: order.address || null,
         totals: {
-          subtotal: order.subtotal,
-          deliveryCharge: order.deliveryCharge,
-          discount: order.discount,
-          total: order.total,
+          subtotal: order.subtotal || 0,
+          deliveryCharge: order.deliveryCharge || 0,
+          discount: order.discount || 0,
+          total: order.total || 0,
+          promoCode: order.promoCode || '',
         },
       }
     }
@@ -118,6 +176,7 @@ function readOrderConfirmation() {
       deliveryCharge: 40,
       discount: 0,
       total: 200,
+      promoCode: '',
     },
   }
 }
@@ -127,26 +186,21 @@ function getTodayInputValue() {
   const year = today.getFullYear()
   const month = String(today.getMonth() + 1).padStart(2, '0')
   const day = String(today.getDate()).padStart(2, '0')
-
   return `${year}-${month}-${day}`
 }
 
 function addDaysToInputValue(dateValue, daysToAdd) {
   const date = new Date(`${dateValue}T00:00:00`)
   date.setDate(date.getDate() + daysToAdd)
-
   const year = date.getFullYear()
   const month = String(date.getMonth() + 1).padStart(2, '0')
   const day = String(date.getDate()).padStart(2, '0')
-
   return `${year}-${month}-${day}`
 }
 
 function formatDate(dateValue) {
   if (!dateValue) return ''
-
   const date = new Date(`${dateValue}T00:00:00`)
-
   return date.toLocaleDateString('en-IN', {
     day: 'numeric',
     month: 'short',
