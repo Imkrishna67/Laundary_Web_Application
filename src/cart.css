@@ -331,7 +331,7 @@
 
 .promo-code-badge {
   background: linear-gradient(135deg, var(--primary), var(--secondary));
-  color: var(--primary-on);
+  color: #000000;
   font-weight: 800;
   font-size: 11px;
   padding: 4px 10px;
