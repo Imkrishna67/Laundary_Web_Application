@@ -2,124 +2,62 @@ import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import '../cart.css'
 
-const serviceCatalog = [
-  {
-    id: 'regular-wash',
-    name: 'Regular Wash',
-    description: 'Everyday clothes washed with care',
-    price: 80,
-  },
-  {
-    id: 'premium-wash',
-    name: 'Premium Wash',
-    description: 'Gentle wash for delicate fabrics',
-    price: 120,
-  },
-  {
-    id: 'blanket-wash',
-    name: 'Blanket Wash',
-    description: 'Bulky blankets and comforters',
-    price: 250,
-  },
-  {
-    id: 'shirt-dry-clean',
-    name: 'Shirt Dry Clean',
-    description: 'Crisp finish for office shirts',
-    price: 80,
-  },
-  {
-    id: 'suit-dry-clean',
-    name: 'Suit Dry Clean',
-    description: 'Premium care for coats and suits',
-    price: 350,
-  },
-  {
-    id: 'dress-dry-clean',
-    name: 'Dress Dry Clean',
-    description: 'Safe cleaning for party wear',
-    price: 250,
-  },
-  {
-    id: 'shirt-iron',
-    name: 'Shirt Iron',
-    description: 'Steam iron with neat folding',
-    price: 40,
-  },
-  {
-    id: 'pant-iron',
-    name: 'Pant Iron',
-    description: 'Sharp crease and smooth finish',
-    price: 50,
-  },
-  {
-    id: 'saree-iron',
-    name: 'Saree Iron',
-    description: 'Careful pleat and press service',
-    price: 120,
-  },
-  {
-    id: 'leather-jacket',
-    name: 'Leather Jacket',
-    description: 'Special cleaning and conditioning',
-    price: 800,
-  },
-  {
-    id: 'comforter-care',
-    name: 'Comforter Care',
-    description: 'Deep clean for heavy bedding',
-    price: 900,
-  },
-  {
-    id: 'sneaker-clean',
-    name: 'Sneaker Clean',
-    description: 'Deep cleaning for sneakers',
-    price: 399,
-  },
+const apiBaseUrl = 'https://quickwash-backend.onrender.com'
+
+const availablePromoCodes = [
+  { code: 'QUICK20', description: '20% off on your order', discount: 0.20, type: 'percentage' },
+  { code: 'WASH50', description: '₹50 off on orders above ₹500', discount: 50, type: 'fixed', minOrder: 500 },
+  { code: 'FIRST30', description: '30% off for first time users', discount: 0.30, type: 'percentage' },
 ]
-
-const PROMOS = [
-  { code: 'QUICK20', discount: 0.2, label: '20% OFF', description: 'Flat 20% off on all services' },
-  { code: 'FIRST50', discount: 50, label: '₹50 OFF', description: '₹50 off on your first order' },
-  { code: 'WEEKEND', discount: 0.15, label: '15% OFF', description: '15% off on all services' },
-]
-
-function getPromoDiscount(code, subtotal) {
-  const promo = PROMOS.find((p) => p.code === code)
-  if (!promo) return 0
-  if (promo.discount === 'freeship') return 0
-  if (typeof promo.discount === 'number' && promo.discount < 1) return Math.round(subtotal * promo.discount)
-  return Math.min(promo.discount, subtotal)
-}
-
-function isFreeDelivery(code) {
-  const promo = PROMOS.find((p) => p.code === code)
-  return promo?.discount === 'freeship'
-}
 
 function CartPage() {
   const navigate = useNavigate()
   const [cartItems, setCartItems] = useState(readCartItems)
+  const [services, setServices] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
   const [promoCode, setPromoCode] = useState('')
-  const [appliedPromo, setAppliedPromo] = useState('')
+  const [appliedPromo, setAppliedPromo] = useState(null)
   const [promoMessage, setPromoMessage] = useState('')
-  const [copiedCode, setCopiedCode] = useState('')
+
+  useEffect(() => {
+    async function fetchServices() {
+      try {
+        const response = await fetch(`${apiBaseUrl}/api/services`)
+        const data = await response.json()
+        setServices(data)
+      } catch (err) {
+        console.error('Failed to fetch services:', err)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+    fetchServices()
+  }, [])
 
   const selectedServices = useMemo(
-    () =>
-      serviceCatalog
-        .filter((service) => (cartItems[service.id] || 0) > 0)
+    () => {
+      if (services.length === 0) return []
+      return services
+        .filter((service) => (cartItems[service._id] || 0) > 0)
         .map((service) => ({
           ...service,
-          quantity: cartItems[service.id],
-          lineTotal: service.price * cartItems[service.id],
-        })),
-    [cartItems],
+          quantity: cartItems[service._id],
+          lineTotal: service.price * cartItems[service._id],
+        }))
+    },
+    [cartItems, services],
   )
 
   const subtotal = selectedServices.reduce((total, service) => total + service.lineTotal, 0)
-  const discount = appliedPromo ? getPromoDiscount(appliedPromo, subtotal) : 0
-  const freeDelivery = appliedPromo ? isFreeDelivery(appliedPromo) : false
-  const deliveryCharge = subtotal > 0 && (freeDelivery || subtotal - discount >= 500) ? 0 : 40
+
+  const discount = useMemo(() => {
+    if (!appliedPromo) return 0
+    if (appliedPromo.type === 'percentage') return Math.round(subtotal * appliedPromo.discount)
+    if (appliedPromo.type === 'fixed') return subtotal >= (appliedPromo.minOrder || 0) ? appliedPromo.discount : 0
+    return 0
+  }, [appliedPromo, subtotal])
+
+  const deliveryCharge = subtotal > 0 && subtotal - discount >= 500 ? 0 : 40
   const total = Math.max(0, subtotal + deliveryCharge - discount)
 
   useEffect(() => {
@@ -131,7 +69,7 @@ function CartPage() {
         deliveryCharge,
         discount,
         total,
-        promoCode: appliedPromo,
+        promoCode: appliedPromo ? appliedPromo.code : '',
       }),
     )
   }, [cartItems, subtotal, deliveryCharge, discount, total, appliedPromo])
@@ -147,27 +85,48 @@ function CartPage() {
   function handleApplyPromo(event) {
     event.preventDefault()
     const normalizedCode = promoCode.trim().toUpperCase()
+
     if (!normalizedCode) {
       setPromoMessage('Please enter a promo code.')
-      setAppliedPromo('')
+      setAppliedPromo(null)
       return
     }
-    if (PROMOS.find((p) => p.code === normalizedCode)) {
-      setAppliedPromo(normalizedCode)
-      setPromoMessage(`Promo code ${normalizedCode} applied successfully.`)
-      setPromoCode('')
+
+    const found = availablePromoCodes.find((p) => p.code === normalizedCode)
+
+    if (!found) {
+      setAppliedPromo(null)
+      setPromoMessage('Invalid promo code. Try QUICK20, WASH50, or FIRST30.')
       return
     }
-    setAppliedPromo('')
-    setPromoMessage('Invalid promo code. Try one of the available codes below.')
+
+    if (found.type === 'fixed' && subtotal < (found.minOrder || 0)) {
+      setAppliedPromo(null)
+      setPromoMessage(`Minimum order ₹${found.minOrder} required for ${found.code}.`)
+      return
+    }
+
+    setAppliedPromo(found)
+    setPromoMessage('Promo code applied successfully! 🎉')
   }
 
-  function handlePromoClick(code) {
-    setAppliedPromo(code)
-    setPromoMessage(`Promo code ${code} applied successfully!`)
-    setCopiedCode(code)
-    navigator.clipboard.writeText(code).catch(() => {})
-    setTimeout(() => setCopiedCode(''), 2000)
+  function handlePromoTagClick(code) {
+    setPromoCode(code)
+    setPromoMessage('')
+  }
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <main className="cart-page">
+        <header className="cart-header">
+          <h1>Your Cart</h1>
+        </header>
+        <div style={{ textAlign: 'center', padding: '3rem', color: '#aaa' }}>
+          <p>Loading cart...</p>
+        </div>
+      </main>
+    )
   }
 
   return (
@@ -179,7 +138,7 @@ function CartPage() {
         </button>
       </header>
 
-      {selectedServices.length === 0 ? (
+      {!isLoading && selectedServices.length === 0 ? (
         <section className="empty-cart">
           <div className="empty-cart-icon" aria-hidden="true">
             <BagIcon />
@@ -194,7 +153,7 @@ function CartPage() {
         <>
           <section className="cart-list" aria-label="Selected services">
             {selectedServices.map((service) => (
-              <article className="cart-item" key={service.id}>
+              <article className="cart-item" key={service._id}>
                 <div className="cart-item-icon" aria-hidden="true">
                   <BagIcon />
                 </div>
@@ -209,7 +168,7 @@ function CartPage() {
                     className="remove-button"
                     type="button"
                     aria-label={`Remove ${service.name}`}
-                    onClick={() => removeItem(service.id)}
+                    onClick={() => removeItem(service._id)}
                   >
                     <RemoveIcon />
                   </button>
@@ -229,7 +188,7 @@ function CartPage() {
               <strong>{deliveryCharge === 0 ? 'Free' : `₹${deliveryCharge}`}</strong>
             </div>
             <div className="price-row discount">
-              <span>Discount {appliedPromo ? `(${appliedPromo})` : ''}</span>
+              <span>Discount {appliedPromo ? `(${appliedPromo.code})` : ''}</span>
               <strong>-₹{discount}</strong>
             </div>
             <div className="price-row total">
@@ -255,40 +214,28 @@ function CartPage() {
             </form>
             {promoMessage ? (
               <p
-                className={`promo-message ${promoMessage.includes('Invalid') || promoMessage.includes('Please') ? 'error' : 'success'}`}
+                className={`promo-message ${promoMessage.includes('Invalid') || promoMessage.includes('Please') || promoMessage.includes('Minimum') ? 'error' : 'success'}`}
                 role="status"
               >
                 {promoMessage}
               </p>
             ) : null}
-            <div className="promo-chips">
-              {PROMOS.map((promo) => {
-                const isApplied = appliedPromo === promo.code
-                const isCopied = copiedCode === promo.code
-                return (
-                  <button
-                    key={promo.code}
-                    type="button"
-                    className={`promo-chip ${isApplied ? 'applied' : ''}`}
-                    onClick={() => handlePromoClick(promo.code)}
-                    disabled={isApplied}
-                  >
-                    <span className="promo-chip-row">
-                      <span className="promo-chip-label">{promo.label}</span>
-                    </span>
-                    <span className="promo-chip-row promo-chip-body">
-                      <span className="promo-chip-code">{promo.code}</span>
-                      <span className="promo-chip-desc">{promo.description}</span>
-                    </span>
-                    {isApplied && (
-                      <span className="promo-chip-badge">✓ Applied</span>
-                    )}
-                    {isCopied && (
-                      <span className="promo-chip-copied">Copied!</span>
-                    )}
-                  </button>
-                )
-              })}
+
+            <div className="available-promos">
+              <h3>Available Offers</h3>
+              {availablePromoCodes.map((promo) => (
+                <div
+                  key={promo.code}
+                  className={`promo-tag ${appliedPromo?.code === promo.code ? 'applied' : ''}`}
+                  onClick={() => handlePromoTagClick(promo.code)}
+                >
+                  <span className="promo-code-badge">{promo.code}</span>
+                  <span className="promo-desc">{promo.description}</span>
+                  {appliedPromo?.code === promo.code && (
+                    <span className="promo-applied-tick">✓</span>
+                  )}
+                </div>
+              ))}
             </div>
           </section>
 
