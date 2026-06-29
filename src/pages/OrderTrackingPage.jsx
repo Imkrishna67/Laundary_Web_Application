@@ -26,6 +26,9 @@ function OrderTrackingPage() {
   const [expanded, setExpanded] = useState(false)
   const [order, setOrder] = useState(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [isCancelling, setIsCancelling] = useState(false)
+  const [cancelMessage, setCancelMessage] = useState('')
+  const [showCancelConfirm, setShowCancelConfirm] = useState(false)
 
   useEffect(() => {
     async function fetchOrder() {
@@ -38,7 +41,6 @@ function OrderTrackingPage() {
           const data = await response.json()
           setOrder(data)
         } else {
-          // Fallback to localStorage data
           setOrder(lastOrder)
         }
       } catch (err) {
@@ -51,6 +53,40 @@ function OrderTrackingPage() {
     }
     fetchOrder()
   }, [])
+
+  async function handleCancelOrder() {
+    try {
+      setIsCancelling(true)
+      const lastOrder = JSON.parse(localStorage.getItem('quickwashLastOrder') || '{}')
+      const mongoId = lastOrder.mongoId
+
+      if (!mongoId) {
+        setCancelMessage('Unable to cancel order. Please try again.')
+        return
+      }
+
+      const response = await fetch(`${apiBaseUrl}/api/orders/${mongoId}/status`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: 'Cancelled' }),
+      })
+
+      if (response.ok) {
+        setOrder((prev) => ({ ...prev, status: 'Cancelled' }))
+        setCancelMessage('Order cancelled successfully.')
+        setShowCancelConfirm(false)
+        // Clear last order from localStorage
+        localStorage.removeItem('quickwashLastOrder')
+        setTimeout(() => navigate('/order-history'), 2000)
+      } else {
+        setCancelMessage('Failed to cancel order. Please try again.')
+      }
+    } catch (err) {
+      setCancelMessage('Unable to connect. Please try again.')
+    } finally {
+      setIsCancelling(false)
+    }
+  }
 
   if (isLoading) {
     return (
@@ -82,6 +118,8 @@ function OrderTrackingPage() {
 
   const currentStatusIndex = STATUS_STEPS.findIndex((step) => step.id === order.status)
   const currentStep = STATUS_STEPS[currentStatusIndex] || STATUS_STEPS[0]
+  const isCancellable = ['Order Placed'].includes(order.status)
+  const isCancelled = order.status === 'Cancelled'
 
   return (
     <main className="tracking-page">
@@ -94,47 +132,51 @@ function OrderTrackingPage() {
       </header>
 
       <section className="status-card" aria-labelledby="current-status-label">
-        <div className="current-status-icon">{currentStep.icon}</div>
-        <h2 id="current-status-label">{currentStep.label}</h2>
-        <p className="estimated-delivery">
-          {order.status === 'Delivered' ? 'Delivered on: ' : 'Estimated Delivery: '}
-          <strong>{formatDate(order.deliveryDate)}</strong>
-        </p>
+        <div className="current-status-icon">{isCancelled ? '❌' : currentStep.icon}</div>
+        <h2 id="current-status-label">{isCancelled ? 'Order Cancelled' : currentStep.label}</h2>
+        {!isCancelled && (
+          <p className="estimated-delivery">
+            {order.status === 'Delivered' ? 'Delivered on: ' : 'Estimated Delivery: '}
+            <strong>{formatDate(order.deliveryDate)}</strong>
+          </p>
+        )}
       </section>
 
-      <section className="timeline-card" aria-label="Order progress">
-        <div className="timeline-track">
-          {STATUS_STEPS.map((step, index) => {
-            const isCompleted = index <= currentStatusIndex
-            const isCurrent = index === currentStatusIndex
+      {!isCancelled && (
+        <section className="timeline-card" aria-label="Order progress">
+          <div className="timeline-track">
+            {STATUS_STEPS.map((step, index) => {
+              const isCompleted = index <= currentStatusIndex
+              const isCurrent = index === currentStatusIndex
 
-            return (
-              <div
-                className={`timeline-step ${isCompleted ? 'completed' : ''} ${isCurrent ? 'current' : ''}`}
-                key={step.id}
-              >
+              return (
                 <div
-                  className={[
-                    'timeline-dot',
-                    isCompleted ? 'completed' : '',
-                    isCurrent ? 'current' : '',
-                  ].filter(Boolean).join(' ')}
+                  className={`timeline-step ${isCompleted ? 'completed' : ''} ${isCurrent ? 'current' : ''}`}
+                  key={step.id}
                 >
-                  {isCompleted && !isCurrent ? (
-                    <span className="check-icon">✓</span>
-                  ) : (
-                    <span className="step-icon">{step.icon}</span>
+                  <div
+                    className={[
+                      'timeline-dot',
+                      isCompleted ? 'completed' : '',
+                      isCurrent ? 'current' : '',
+                    ].filter(Boolean).join(' ')}
+                  >
+                    {isCompleted && !isCurrent ? (
+                      <span className="check-icon">✓</span>
+                    ) : (
+                      <span className="step-icon">{step.icon}</span>
+                    )}
+                  </div>
+                  <span className="timeline-label">{step.label}</span>
+                  {index < STATUS_STEPS.length - 1 && (
+                    <div className={`timeline-line ${index < currentStatusIndex ? 'filled' : ''}`} />
                   )}
                 </div>
-                <span className="timeline-label">{step.label}</span>
-                {index < STATUS_STEPS.length - 1 && (
-                  <div className={`timeline-line ${index < currentStatusIndex ? 'filled' : ''}`} />
-                )}
-              </div>
-            )
-          })}
-        </div>
-      </section>
+              )
+            })}
+          </div>
+        </section>
+      )}
 
       <section className="details-card">
         <button
@@ -207,10 +249,48 @@ function OrderTrackingPage() {
         )}
       </section>
 
+      {cancelMessage ? (
+        <p className={`cancel-message ${cancelMessage.includes('successfully') ? 'success' : 'error'}`}>
+          {cancelMessage}
+        </p>
+      ) : null}
+
+      {showCancelConfirm && (
+        <div className="cancel-confirm-box">
+          <p>Are you sure you want to cancel this order?</p>
+          <div className="cancel-confirm-actions">
+            <button
+              type="button"
+              className="confirm-cancel-btn"
+              onClick={handleCancelOrder}
+              disabled={isCancelling}
+            >
+              {isCancelling ? 'Cancelling...' : 'Yes, Cancel'}
+            </button>
+            <button
+              type="button"
+              className="confirm-keep-btn"
+              onClick={() => setShowCancelConfirm(false)}
+            >
+              No, Keep
+            </button>
+          </div>
+        </div>
+      )}
+
       <div className="tracking-actions">
         <button type="button" className="home-button" onClick={() => navigate('/home')}>
           Home
         </button>
+        {isCancellable && !showCancelConfirm && (
+          <button
+            type="button"
+            className="cancel-order-btn"
+            onClick={() => setShowCancelConfirm(true)}
+          >
+            Cancel Order
+          </button>
+        )}
       </div>
     </main>
   )

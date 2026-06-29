@@ -478,3 +478,86 @@
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.08); }
 }
+
+.cancel-order-btn {
+  width: 100%;
+  min-height: 50px;
+  margin-top: 10px;
+  border: 2px solid var(--danger);
+  border-radius: var(--radius-xl);
+  background: transparent;
+  color: var(--danger);
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.cancel-order-btn:hover {
+  background: var(--danger);
+  color: #fff;
+}
+
+.cancel-confirm-box {
+  margin-top: 16px;
+  padding: 16px;
+  border: 1.5px solid var(--danger);
+  border-radius: var(--radius-xl);
+  background: var(--surface);
+  text-align: center;
+}
+
+.cancel-confirm-box p {
+  color: var(--text);
+  font-size: 14px;
+  margin-bottom: 14px;
+  font-weight: 600;
+}
+
+.cancel-confirm-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.confirm-cancel-btn {
+  flex: 1;
+  min-height: 44px;
+  border: 0;
+  border-radius: var(--radius-lg);
+  background: var(--danger);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.confirm-keep-btn {
+  flex: 1;
+  min-height: 44px;
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: transparent;
+  color: var(--text);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.cancel-message {
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+  margin-top: 12px;
+  padding: 10px;
+  border-radius: var(--radius-lg);
+}
+
+.cancel-message.success {
+  color: var(--success);
+  background: color-mix(in srgb, var(--success) 10%, transparent);
+}
+
+.cancel-message.error {
+  color: var(--danger);
+  background: color-mix(in srgb, var(--danger) 10%, transparent);
+}
