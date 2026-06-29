@@ -292,124 +292,64 @@
   color: var(--success);
 }
 
-.promo-chips {
-  display: grid;
-  gap: 10px;
+.available-promos {
   margin-top: 14px;
 }
 
-.promo-chip {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  padding: 14px 16px;
-  border: 1.5px solid var(--border);
-  border-radius: var(--radius-lg);
-  background: var(--surface-raised);
-  color: var(--text);
-  cursor: pointer;
-  text-align: left;
-  transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
-  position: relative;
+.available-promos h3 {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-bottom: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: 700;
 }
 
-.promo-chip:hover:not(:disabled) {
+.promo-tag {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--surface-raised);
+  border: 1.5px dashed var(--border);
+  border-radius: var(--radius-lg);
+  padding: 10px 14px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.promo-tag:hover {
+  background: var(--primary-soft);
   border-color: var(--primary);
   transform: translateY(-1px);
-  box-shadow: var(--shadow-md);
 }
 
-.promo-chip:active:not(:disabled) {
-  transform: scale(0.98);
-}
-
-.promo-chip:disabled {
-  cursor: default;
-  opacity: 0.7;
-}
-
-.promo-chip.applied {
+.promo-tag.applied {
   border-color: var(--success);
   background: color-mix(in srgb, var(--success) 8%, var(--surface-raised));
 }
 
-.promo-chip-row {
-  display: flex;
-  align-items: center;
-}
-
-.promo-chip-label {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 4px 10px;
-  border-radius: var(--radius-sm);
+.promo-code-badge {
   background: linear-gradient(135deg, var(--primary), var(--secondary));
   color: var(--primary-on);
+  font-weight: 800;
   font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 0.4px;
-  text-transform: uppercase;
-  width: fit-content;
-  line-height: 1.4;
-}
-
-.promo-chip.applied .promo-chip-label {
-  background: var(--success);
-  color: #fff;
-}
-
-.promo-chip-body {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  width: 100%;
-}
-
-.promo-chip-code {
-  font-size: 13px;
-  font-weight: 800;
-  color: var(--primary);
-  letter-spacing: 0.3px;
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  letter-spacing: 1px;
   white-space: nowrap;
 }
 
-  .promo-chip-desc {
-    font-size: 12px;
-    color: var(--text);
-    line-height: 1.4;
-    text-align: right;
-  }
-
-.promo-chip-badge {
+.promo-desc {
   font-size: 12px;
-  font-weight: 700;
+  color: var(--text-secondary);
+  flex: 1;
+}
+
+.promo-applied-tick {
   color: var(--success);
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.promo-chip-copied {
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--primary);
-  animation: toastIn 0.3s ease;
-  position: absolute;
-  top: 10px;
-  right: 14px;
-}
-
-@keyframes toastIn {
-  from {
-    opacity: 0;
-    transform: translateY(4px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  font-weight: 800;
+  font-size: 16px;
 }
 
 .proceed-button {
