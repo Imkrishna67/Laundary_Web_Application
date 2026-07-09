@@ -561,3 +561,14 @@
   color: var(--danger);
   background: color-mix(in srgb, var(--danger) 10%, transparent);
 }
+
+.cancel-window-note {
+  text-align: center;
+  font-size: 13px;
+  font-weight: 500;
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: var(--radius-lg);
+  color: var(--text-muted);
+  background: color-mix(in srgb, var(--text-muted) 10%, transparent);
+}

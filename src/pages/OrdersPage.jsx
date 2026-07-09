@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+﻿import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import '../home.css'
 
@@ -14,7 +14,7 @@ function BackIcon() {
 
 function readCartItems() {
   try {
-    const storedCart = localStorage.getItem('quickwashCart')
+    const storedCart = localStorage.getItem('hexalaundaryCart')
     return storedCart ? JSON.parse(storedCart) : {}
   } catch {
     return {}
@@ -23,7 +23,7 @@ function readCartItems() {
 
 function readSchedule() {
   try {
-    const storedSchedule = localStorage.getItem('quickwashSchedule')
+    const storedSchedule = localStorage.getItem('hexalaundarySchedule')
     return storedSchedule ? JSON.parse(storedSchedule) : null
   } catch {
     return null
@@ -32,7 +32,7 @@ function readSchedule() {
 
 function readAddresses() {
   try {
-    const storedAddresses = localStorage.getItem('quickwashAddresses')
+    const storedAddresses = localStorage.getItem('hexalaundaryAddresses')
     return storedAddresses ? JSON.parse(storedAddresses) : []
   } catch {
     return []
@@ -40,12 +40,12 @@ function readAddresses() {
 }
 
 function readSelectedAddressId() {
-  return localStorage.getItem('quickwashSelectedAddressId') || ''
+  return localStorage.getItem('hexalaundarySelectedAddressId') || ''
 }
 
 function readOrderTotals() {
   try {
-    const storedTotals = localStorage.getItem('quickwashOrderTotals')
+    const storedTotals = localStorage.getItem('hexalaundaryOrderTotals')
     return storedTotals ? JSON.parse(storedTotals) : { subtotal: 0, deliveryCharge: 0, discount: 0, total: 0 }
   } catch {
     return { subtotal: 0, deliveryCharge: 0, discount: 0, total: 0 }
@@ -106,12 +106,12 @@ function OrdersPage() {
   function handlePlaceOrder() {
     if (selectedServices.length === 0 || !selectedAddress || !schedule) return
 
-    const orderCount = localStorage.getItem('quickwashOrderCount') || '0'
+    const orderCount = localStorage.getItem('hexalaundaryOrderCount') || '0'
     const nextOrderCount = parseInt(orderCount, 10) + 1
-    localStorage.setItem('quickwashOrderCount', String(nextOrderCount))
+    localStorage.setItem('hexalaundaryOrderCount', String(nextOrderCount))
 
     const order = {
-      id: `QW-${String(1000 + nextOrderCount).slice(1)}`,
+      id: `HL-${String(1000 + nextOrderCount).slice(1)}`,
       services: selectedServices.map((s) => ({
         id: s._id,
         name: s.name,
@@ -131,9 +131,9 @@ function OrdersPage() {
       createdAt: new Date().toISOString(),
     }
 
-    localStorage.setItem('quickwashLastOrder', JSON.stringify(order))
-    localStorage.setItem('quickwashCart', '{}')
-    localStorage.setItem('quickwashPickupChecked', 'true')
+    localStorage.setItem('hexalaundaryLastOrder', JSON.stringify(order))
+    localStorage.setItem('hexalaundaryCart', '{}')
+    localStorage.setItem('hexalaundaryPickupChecked', 'true')
     navigate('/order-confirmation')
   }
 

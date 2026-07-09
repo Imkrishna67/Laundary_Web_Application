@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+﻿import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import '../order-confirmation.css'
 
@@ -13,7 +13,7 @@ function OrderConfirmationPage() {
   useEffect(() => {
     async function saveOrder() {
       try {
-        const user = JSON.parse(localStorage.getItem('quickwashUser') || '{}')
+        const user = JSON.parse(localStorage.getItem('hexalaundaryUser') || '{}')
         if (!user.email) return
 
         const orderData = {
@@ -49,9 +49,9 @@ function OrderConfirmationPage() {
         if (data.order?._id) {
           setSavedOrderId(data.order._id)
           // Save order ID to localStorage for tracking
-          const lastOrder = JSON.parse(localStorage.getItem('quickwashLastOrder') || '{}')
+          const lastOrder = JSON.parse(localStorage.getItem('hexalaundaryLastOrder') || '{}')
           lastOrder.mongoId = data.order._id
-          localStorage.setItem('quickwashLastOrder', JSON.stringify(lastOrder))
+          localStorage.setItem('hexalaundaryLastOrder', JSON.stringify(lastOrder))
         }
       } catch (err) {
         console.error('Failed to save order:', err)
@@ -138,11 +138,11 @@ function OrderConfirmationPage() {
 
 function readOrderConfirmation() {
   try {
-    const storedOrder = localStorage.getItem('quickwashLastOrder')
+    const storedOrder = localStorage.getItem('hexalaundaryLastOrder')
     if (storedOrder) {
       const order = JSON.parse(storedOrder)
       return {
-        orderId: order.id || 'QW-0001',
+        orderId: order.id || 'HL-0001',
         services: order.services || [],
         schedule: order.schedule || {},
         address: order.address || null,
@@ -160,7 +160,7 @@ function readOrderConfirmation() {
   }
 
   return {
-    orderId: 'QW-2048',
+    orderId: 'HL-2048',
     services: [
       { id: 'demo-regular-wash', name: 'Regular Wash', quantity: 2, lineTotal: 160 },
     ],

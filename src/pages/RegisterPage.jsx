@@ -1,4 +1,4 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import '../login.css'
 
@@ -140,7 +140,7 @@ function RegisterPage() {
       }
 
       localStorage.setItem(
-        'quickwashUser',
+        'hexalaundaryUser',
         JSON.stringify({
           fullName: fullName.trim(),
           mobile: normalizeMobile(mobile),
@@ -197,7 +197,7 @@ function RegisterPage() {
             </svg>
           </div>
           <h1 id="register-title">Create Account</h1>
-          <p>Start your QuickWash journey</p>
+          <p>Start your Hexa Laundary journey</p>
         </div>
 
         <div className="login-card">
@@ -362,7 +362,7 @@ function RegisterPage() {
               </span>
               {showTerms && (
                 <div className="terms-box">
-                  <p>By creating an account, you agree to our Terms of Service and Privacy Policy. QuickWash provides laundry services at your convenience and is not liable for any damage to delicate items unless explicitly insured.</p>
+                  <p>By creating an account, you agree to our Terms of Service and Privacy Policy. Hexa Laundary provides laundry services at your convenience and is not liable for any damage to delicate items unless explicitly insured.</p>
                   <button type="button" className="terms-close" onClick={() => setShowTerms(false)}>Close</button>
                 </div>
               )}
@@ -394,9 +394,9 @@ function RegisterPage() {
             type="button"
             className="clear-storage-button"
             onClick={() => {
-              localStorage.removeItem('quickwashUser')
-              localStorage.removeItem('quickwashTheme')
-              localStorage.removeItem('quickwashLastOrder')
+              localStorage.removeItem('hexalaundaryUser')
+              localStorage.removeItem('hexalaundaryTheme')
+              localStorage.removeItem('hexalaundaryLastOrder')
               window.location.reload()
             }}
           >

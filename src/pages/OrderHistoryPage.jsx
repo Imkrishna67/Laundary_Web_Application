@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import '../order-history.css'
 
@@ -38,7 +38,7 @@ function OrderHistoryPage() {
   useEffect(() => {
     async function fetchOrders() {
       try {
-        const user = JSON.parse(localStorage.getItem('quickwashUser') || '{}')
+        const user = JSON.parse(localStorage.getItem('hexalaundaryUser') || '{}')
         if (!user.email) return
 
         const response = await fetch(`${apiBaseUrl}/api/orders/${encodeURIComponent(user.email)}`)
@@ -195,7 +195,7 @@ function OrderHistoryDetailView({ orderId, onBack }) {
   const badge = badgeMap[tab]
 
   function handleHelp() {
-    navigator.clipboard.writeText('Support: +91 1800-123-4567 | support@quickwash.in')
+    navigator.clipboard.writeText('Support: +91 1800-123-4567 | support@hexalaundary.in')
     setHelpCopied(true)
     setTimeout(() => setHelpCopied(false), 2000)
   }

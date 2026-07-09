@@ -1,4 +1,4 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import '../login.css'
 
@@ -101,8 +101,8 @@ function LoginPage() {
         email: data.user?.email || normalizeIdentifier(identifier),
         loggedInAt: new Date().toISOString(),
       }
-      localStorage.setItem('quickwashUser', JSON.stringify(storedUser))
-      setSuccessMessage(data.message || 'Login successful! Welcome to QuickWash.')
+      localStorage.setItem('hexalaundaryUser', JSON.stringify(storedUser))
+      setSuccessMessage(data.message || 'Login successful! Welcome to Hexa Laundary.')
       navigate('/home')
     } catch (error) {
       const isConnectionError =
@@ -147,7 +147,7 @@ function LoginPage() {
               />
             </svg>
           </div>
-          <h1 id="login-title">QuickWash</h1>
+          <h1 id="login-title">Hexa Laundary</h1>
           <p>Laundry made easy</p>
         </div>
 

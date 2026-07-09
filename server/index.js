@@ -1,4 +1,4 @@
-import cors from 'cors'
+﻿import cors from 'cors'
 import express from 'express'
 import mongoose from 'mongoose'
 import bcrypt from 'bcryptjs'
@@ -18,7 +18,7 @@ app.use(cors({
   origin: [
     'http://localhost:5173',
     'http://localhost:5174',
-    'https://laundary-web-application.vercel.app'
+    'https://hexa-laundary.vercel.app'
   ]
 }))
 
@@ -36,7 +36,7 @@ app.get("/api/health", (req, res) => {
 
 // root
 app.get("/", (req, res) => {
-  res.json({ message: "QuickWash Backend Running 🚀" })
+  res.json({ message: "Hexa Laundary Backend Running 🚀" })
 })
 
 // REGISTER
@@ -88,7 +88,7 @@ app.post('/api/auth/login', async (req, res) => {
     }
 
     res.json({
-      message: "Login successful! Welcome to QuickWash.",
+      message: "Login successful! Welcome to Hexa Laundary.",
       user: {
         id: user._id,
         fullName: user.fullName,
@@ -162,11 +162,20 @@ app.get('/api/orders/detail/:orderId', async (req, res) => {
 // PATCH update order status
 app.patch('/api/orders/:orderId/status', async (req, res) => {
   try {
-    const order = await Order.findByIdAndUpdate(
-      req.params.orderId,
-      { status: req.body.status },
-      { new: true }
-    )
+    const order = await Order.findById(req.params.orderId)
+    if (!order) return res.status(404).json({ message: "Order not found." })
+
+    if (req.body.status === 'Cancelled') {
+      const ageMs = Date.now() - new Date(order.createdAt).getTime()
+      if (ageMs > 15 * 60 * 1000) {
+        return res.status(403).json({
+          message: "Orders can only be cancelled within 15 minutes of being placed.",
+        })
+      }
+    }
+
+    order.status = req.body.status
+    await order.save()
     res.json(order)
   } catch (err) {
     res.status(500).json({ error: err.message })

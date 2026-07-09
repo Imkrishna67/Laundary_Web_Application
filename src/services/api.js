@@ -1,8 +1,8 @@
-const STORAGE_KEY = 'quickwashOrderHistory'
+﻿const STORAGE_KEY = 'hexalaundaryOrderHistory'
 
 const demoOrders = [
   {
-    id: 'QW-8A3F21B4',
+    id: 'HL-8A3F21B4',
     status: 'ongoing',
     date: 'Jun 20, 2026',
     services: [
@@ -22,7 +22,7 @@ const demoOrders = [
     deliveryAddress: { houseNo: 'A-102', street: 'Green Park', city: 'New Delhi', pincode: '110016', landmark: 'Near Metro Station' },
   },
   {
-    id: 'QW-7D2E91C8',
+    id: 'HL-7D2E91C8',
     status: 'completed',
     date: 'Jun 15, 2026',
     services: [
@@ -42,7 +42,7 @@ const demoOrders = [
     deliveryAddress: { houseNo: 'B-204', street: 'MG Road', city: 'Bangalore', pincode: '560001', landmark: '' },
   },
   {
-    id: 'QW-9C1B45D2',
+    id: 'HL-9C1B45D2',
     status: 'completed',
     date: 'Jun 10, 2026',
     services: [
@@ -61,7 +61,7 @@ const demoOrders = [
     deliveryAddress: { houseNo: 'C-305', street: 'Park Street', city: 'Kolkata', pincode: '700016', landmark: 'Near Mall' },
   },
   {
-    id: 'QW-5F8A73E1',
+    id: 'HL-5F8A73E1',
     status: 'cancelled',
     date: 'Jun 5, 2026',
     services: [
@@ -114,14 +114,14 @@ export const orderService = {
     order.services.forEach((s) => {
       cart[s.id] = (cart[s.id] || 0) + s.quantity
     })
-    localStorage.setItem('quickwashCart', JSON.stringify(cart))
+    localStorage.setItem('hexalaundaryCart', JSON.stringify(cart))
   },
 
   addOrder(order) {
     const orders = this.getOrders()
     const newOrder = {
       ...order,
-      id: `QW-${Date.now().toString().slice(-8)}`,
+      id: `HL-${Date.now().toString().slice(-8)}`,
       date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
       status: 'ongoing',
     }

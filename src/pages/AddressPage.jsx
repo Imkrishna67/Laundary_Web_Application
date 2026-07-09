@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+﻿import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import '../address.css'
 
@@ -22,7 +22,7 @@ function AddressPage() {
   const [message, setMessage] = useState({ type: '', text: '' })
 
   useEffect(() => {
-    localStorage.setItem('quickwashAddresses', JSON.stringify(addresses))
+    localStorage.setItem('hexalaundaryAddresses', JSON.stringify(addresses))
   }, [addresses])
 
   function resetForm() {
@@ -149,7 +149,7 @@ function AddressPage() {
       return
     }
 
-    localStorage.setItem('quickwashSelectedAddressId', selectedAddressId)
+    localStorage.setItem('hexalaundarySelectedAddressId', selectedAddressId)
     navigate('/orders')
   }
 
@@ -325,13 +325,13 @@ function AddressPage() {
 
 function readAddresses() {
   try {
-    const storedAddresses = localStorage.getItem('quickwashAddresses')
+    const storedAddresses = localStorage.getItem('hexalaundaryAddresses')
 
     if (storedAddresses) {
       const addresses = JSON.parse(storedAddresses)
       const filtered = addresses.filter((addr) => addr.id !== 'address-demo')
       if (filtered.length !== addresses.length) {
-        localStorage.setItem('quickwashAddresses', JSON.stringify(filtered))
+        localStorage.setItem('hexalaundaryAddresses', JSON.stringify(filtered))
       }
       return filtered
     }

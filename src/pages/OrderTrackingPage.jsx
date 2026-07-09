@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import '../order-tracking.css'
 
@@ -21,6 +21,8 @@ const STATUS_STEPS = [
   { id: 'Delivered', label: 'Delivered', icon: '🏠' },
 ]
 
+const CANCEL_WINDOW_MS = 15 * 60 * 1000
+
 function OrderTrackingPage() {
   const navigate = useNavigate()
   const [expanded, setExpanded] = useState(false)
@@ -29,11 +31,17 @@ function OrderTrackingPage() {
   const [isCancelling, setIsCancelling] = useState(false)
   const [cancelMessage, setCancelMessage] = useState('')
   const [showCancelConfirm, setShowCancelConfirm] = useState(false)
+  const [now, setNow] = useState(() => Date.now())
+
+  useEffect(() => {
+    const tick = setInterval(() => setNow(Date.now()), 30000)
+    return () => clearInterval(tick)
+  }, [])
 
   useEffect(() => {
     async function fetchOrder() {
       try {
-        const lastOrder = JSON.parse(localStorage.getItem('quickwashLastOrder') || '{}')
+        const lastOrder = JSON.parse(localStorage.getItem('hexalaundaryLastOrder') || '{}')
         const mongoId = lastOrder.mongoId
 
         if (mongoId) {
@@ -45,7 +53,7 @@ function OrderTrackingPage() {
         }
       } catch (err) {
         console.error('Failed to fetch order:', err)
-        const lastOrder = JSON.parse(localStorage.getItem('quickwashLastOrder') || '{}')
+        const lastOrder = JSON.parse(localStorage.getItem('hexalaundaryLastOrder') || '{}')
         setOrder(lastOrder)
       } finally {
         setIsLoading(false)
@@ -57,7 +65,7 @@ function OrderTrackingPage() {
   async function handleCancelOrder() {
     try {
       setIsCancelling(true)
-      const lastOrder = JSON.parse(localStorage.getItem('quickwashLastOrder') || '{}')
+      const lastOrder = JSON.parse(localStorage.getItem('hexalaundaryLastOrder') || '{}')
       const mongoId = lastOrder.mongoId
 
       if (!mongoId) {
@@ -76,7 +84,7 @@ function OrderTrackingPage() {
         setCancelMessage('Order cancelled successfully.')
         setShowCancelConfirm(false)
         // Clear last order from localStorage
-        localStorage.removeItem('quickwashLastOrder')
+        localStorage.removeItem('hexalaundaryLastOrder')
         setTimeout(() => navigate('/order-history'), 2000)
       } else {
         setCancelMessage('Failed to cancel order. Please try again.')
@@ -118,8 +126,12 @@ function OrderTrackingPage() {
 
   const currentStatusIndex = STATUS_STEPS.findIndex((step) => step.id === order.status)
   const currentStep = STATUS_STEPS[currentStatusIndex] || STATUS_STEPS[0]
-  const isCancellable = ['Order Placed'].includes(order.status)
   const isCancelled = order.status === 'Cancelled'
+
+  const placedAt = order?.createdAt ? new Date(order.createdAt).getTime() : null
+  const cancelDeadline = placedAt ? placedAt + CANCEL_WINDOW_MS : null
+  const isWithinCancelWindow = cancelDeadline ? now <= cancelDeadline : false
+  const isCancellable = order.status === 'Order Placed' && isWithinCancelWindow
 
   return (
     <main className="tracking-page">
@@ -292,6 +304,12 @@ function OrderTrackingPage() {
           </button>
         )}
       </div>
+
+      {order.status === 'Order Placed' && !isWithinCancelWindow && (
+        <p className="cancel-window-note">
+          Orders can only be cancelled within 15 minutes of being placed.
+        </p>
+      )}
     </main>
   )
 }

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import '../profile.css'
 
@@ -22,7 +22,7 @@ function ProfilePage() {
 
   function getStoredUser() {
     try {
-      const stored = localStorage.getItem('quickwashUser')
+      const stored = localStorage.getItem('hexalaundaryUser')
       return stored ? JSON.parse(stored) : {}
     } catch {
       return {}
@@ -81,7 +81,7 @@ function ProfilePage() {
       email: trimmedEmail || storedUser.identifier || '',
     }
 
-    localStorage.setItem('quickwashUser', JSON.stringify(updatedUser))
+    localStorage.setItem('hexalaundaryUser', JSON.stringify(updatedUser))
     setIsEditing(false)
     showToast('Profile updated successfully.')
     setTimeout(() => window.location.reload(), 500)
@@ -92,11 +92,11 @@ function ProfilePage() {
   }
 
   function handleHelpSupport() {
-    showToast('Support: +91 1800-123-4567 | support@quickwash.in')
+    showToast('Support: +91 1800-123-4567 | support@hexalaundary.in')
   }
 
   function handleLogout() {
-    localStorage.removeItem('quickwashUser')
+    localStorage.removeItem('hexalaundaryUser')
     showToast('Logged out successfully.')
     setTimeout(() => navigate('/'), 1000)
   }

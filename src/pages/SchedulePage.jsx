@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+﻿import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import '../schedule.css'
 
@@ -53,7 +53,7 @@ function SchedulePage() {
       confirmedAt: new Date().toISOString(),
     }
 
-    localStorage.setItem('quickwashSchedule', JSON.stringify(schedule))
+    localStorage.setItem('hexalaundarySchedule', JSON.stringify(schedule))
     setMessage({
       type: 'success',
       text: `Schedule confirmed. Pickup on ${formatDate(pickupDate)}, ${pickupSlot}.`,

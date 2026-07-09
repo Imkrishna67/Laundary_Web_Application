@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+﻿import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTheme } from '../contexts/ThemeContextValues.jsx'
 import '../home.css'
@@ -43,7 +43,7 @@ const services = [
 
 function getUserName() {
   try {
-    const storedUser = localStorage.getItem('quickwashUser')
+    const storedUser = localStorage.getItem('hexalaundaryUser')
     if (!storedUser) return 'there'
     const user = JSON.parse(storedUser)
     const name = user.fullName || user.identifier || 'there'
@@ -75,7 +75,7 @@ function HomePage() {
   useEffect(() => {
     async function fetchActiveOrder() {
       try {
-        const user = JSON.parse(localStorage.getItem('quickwashUser') || '{}')
+        const user = JSON.parse(localStorage.getItem('hexalaundaryUser') || '{}')
         if (!user.email) return
 
         const response = await fetch(`${apiBaseUrl}/api/orders/${encodeURIComponent(user.email)}`)
@@ -112,7 +112,7 @@ function HomePage() {
     <main className="home-page">
       <header className="home-header">
         <div>
-          <p className="eyebrow">QuickWash</p>
+          <p className="eyebrow">Hexa Laundary</p>
           <h1>Hi, {getUserName()}</h1>
         </div>
         <div className="header-actions" aria-label="Account actions">

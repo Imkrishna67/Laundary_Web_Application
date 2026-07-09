@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+﻿import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import '../cart.css'
 
@@ -61,9 +61,9 @@ function CartPage() {
   const total = Math.max(0, subtotal + deliveryCharge - discount)
 
   useEffect(() => {
-    localStorage.setItem('quickwashCart', JSON.stringify(cartItems))
+    localStorage.setItem('hexalaundaryCart', JSON.stringify(cartItems))
     localStorage.setItem(
-      'quickwashOrderTotals',
+      'hexalaundaryOrderTotals',
       JSON.stringify({
         subtotal,
         deliveryCharge,
@@ -255,7 +255,7 @@ function CartPage() {
 
 function readCartItems() {
   try {
-    const storedCart = localStorage.getItem('quickwashCart')
+    const storedCart = localStorage.getItem('hexalaundaryCart')
     return storedCart ? JSON.parse(storedCart) : {}
   } catch {
     return {}

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+﻿import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import '../service-selection.css'
 
@@ -29,7 +29,7 @@ function ServiceSelectionPage() {
   }, [])
 
   useEffect(() => {
-    localStorage.setItem('quickwashCart', JSON.stringify(cartItems))
+    localStorage.setItem('hexalaundaryCart', JSON.stringify(cartItems))
   }, [cartItems])
 
   const filteredServices = useMemo(
@@ -176,7 +176,7 @@ function ServiceIcon({ category }) {
 
 function readCartItems() {
   try {
-    const storedCart = localStorage.getItem('quickwashCart')
+    const storedCart = localStorage.getItem('hexalaundaryCart')
     return storedCart ? JSON.parse(storedCart) : {}
   } catch {
     return {}

@@ -1,11 +1,11 @@
-import { useMemo, useState } from 'react'
+﻿import { useMemo, useState } from 'react'
 import { ThemeContext } from './ThemeContextValues.jsx'
 
 export function ThemeProvider({ children }) {
   const getInitialTheme = () => {
     if (typeof window === 'undefined') return 'dark'
     try {
-      return localStorage.getItem('quickwashTheme') === 'light' ? 'light' : 'dark'
+      return localStorage.getItem('hexalaundaryTheme') === 'light' ? 'light' : 'dark'
     } catch {
       return 'dark'
     }
@@ -23,7 +23,7 @@ export function ThemeProvider({ children }) {
     setTheme(next)
     document.documentElement.setAttribute('data-theme', next)
     try {
-      localStorage.setItem('quickwashTheme', next)
+      localStorage.setItem('hexalaundaryTheme', next)
     } catch {
       // ignore storage errors
     }
