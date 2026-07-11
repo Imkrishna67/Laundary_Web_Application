@@ -1,5 +1,6 @@
 ﻿import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useClerk, useUser } from '@clerk/clerk-react'
 import '../profile.css'
 
 function BackIcon() {
@@ -12,6 +13,8 @@ function BackIcon() {
 
 function ProfilePage() {
   const navigate = useNavigate()
+  const { signOut } = useClerk()
+  const { user } = useUser()
   const [notifications, setNotifications] = useState(true)
   const [language, setLanguage] = useState('English')
   const [toast, setToast] = useState({ show: false, text: '' })
@@ -30,9 +33,11 @@ function ProfilePage() {
   }
 
   const storedUser = getStoredUser()
-  const fullName = storedUser.fullName ? storedUser.fullName : 'User'
+
+  // Clerk se real data lo, fallback localStorage se
+  const fullName = user?.fullName || storedUser.fullName || 'User'
   const mobile = storedUser.mobile || ''
-  const email = storedUser.email || storedUser.identifier || ''
+  const email = user?.primaryEmailAddress?.emailAddress || storedUser.email || storedUser.identifier || ''
 
   function getInitials(name) {
     const parts = name.trim().split(/\s+/)
@@ -97,8 +102,12 @@ function ProfilePage() {
 
   function handleLogout() {
     localStorage.removeItem('hexalaundaryUser')
+    localStorage.removeItem('hexalaundaryLastOrder')
+    localStorage.removeItem('hexalaundaryTheme')
     showToast('Logged out successfully.')
-    setTimeout(() => navigate('/'), 1000)
+    setTimeout(() => {
+      signOut(() => navigate('/'))
+    }, 1000)
   }
 
   return (

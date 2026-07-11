@@ -1,61 +1,33 @@
 ﻿import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { useSignUp } from '@clerk/clerk-react'
 import '../login.css'
-
-const apiBaseUrl = 'https://quickwash-backend.onrender.com'
 
 function validateFullName(value) {
   const trimmedValue = value.trim()
-
-  if (!trimmedValue) {
-    return 'Please enter your full name.'
-  }
-
-  if (trimmedValue.length < 2) {
-    return 'Full name must be at least 2 characters.'
-  }
-
+  if (!trimmedValue) return 'Please enter your full name.'
+  if (trimmedValue.length < 2) return 'Full name must be at least 2 characters.'
   return ''
 }
 
 function validateMobile(value) {
   const digits = value.replace(/\D/g, '')
-
-  if (!digits) {
-    return 'Please enter your mobile number.'
-  }
-
-  if (!/^[6-9]\d{9}$/.test(digits)) {
-    return 'Enter a valid 10-digit mobile number.'
-  }
-
+  if (!digits) return 'Please enter your mobile number.'
+  if (!/^[6-9]\d{9}$/.test(digits)) return 'Enter a valid 10-digit mobile number.'
   return ''
 }
 
 function validateEmail(value) {
   const trimmedValue = value.trim()
   const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
-
-  if (!trimmedValue) {
-    return 'Please enter your email address.'
-  }
-
-  if (!emailPattern.test(trimmedValue)) {
-    return 'Enter a valid email address.'
-  }
-
+  if (!trimmedValue) return 'Please enter your email address.'
+  if (!emailPattern.test(trimmedValue)) return 'Enter a valid email address.'
   return ''
 }
 
 function validatePassword(value) {
-  if (!value) {
-    return 'Please enter a password.'
-  }
-
-  if (value.length < 6) {
-    return 'Password must be at least 6 characters.'
-  }
-
+  if (!value) return 'Please enter a password.'
+  if (value.length < 8) return 'Password must be at least 8 characters.'
   return ''
 }
 
@@ -65,6 +37,7 @@ function normalizeMobile(value) {
 
 function RegisterPage() {
   const navigate = useNavigate()
+  const { signUp, isLoaded } = useSignUp()
   const [fullName, setFullName] = useState('')
   const [mobile, setMobile] = useState('')
   const [email, setEmail] = useState('')
@@ -90,18 +63,18 @@ function RegisterPage() {
 
   async function handleRegister(event) {
     event.preventDefault()
+    if (!isLoaded) return
 
     const nextErrors = {
       fullName: validateFullName(fullName),
       mobile: validateMobile(mobile),
       email: validateEmail(email),
       password: validatePassword(password),
-      confirmPassword:
-        !confirmPassword
-          ? 'Please confirm your password.'
-          : password !== confirmPassword
-            ? 'Passwords do not match.'
-            : '',
+      confirmPassword: !confirmPassword
+        ? 'Please confirm your password.'
+        : password !== confirmPassword
+          ? 'Passwords do not match.'
+          : '',
       terms: termsAccepted ? '' : 'Please accept the Terms & Conditions.',
     }
 
@@ -120,52 +93,31 @@ function RegisterPage() {
     setFieldErrors({})
 
     try {
-      const response = await fetch(`${apiBaseUrl}/api/auth/register`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          fullName: fullName.trim(),
+      await signUp.create({
+        emailAddress: email.trim(),
+        password,
+        firstName: fullName.trim().split(' ')[0],
+        lastName: fullName.trim().split(' ').slice(1).join(' ') || '',
+        unsafeMetadata: {
           mobile: normalizeMobile(mobile),
-          email: email.trim(),
-          password,
-        }),
+        },
       })
 
-      const data = await response.json()
+      await signUp.prepareEmailAddressVerification({ strategy: 'email_code' })
 
-      if (!response.ok) {
-        throw new Error(data.message || 'Registration failed. Please try again.')
-      }
+      localStorage.setItem('hexalaundaryUser', JSON.stringify({
+        fullName: fullName.trim(),
+        mobile: normalizeMobile(mobile),
+        email: email.trim(),
+        registeredAt: new Date().toISOString(),
+      }))
 
-      localStorage.setItem(
-        'hexalaundaryUser',
-        JSON.stringify({
-          fullName: fullName.trim(),
-          mobile: normalizeMobile(mobile),
-          email: email.trim(),
-          registeredAt: new Date().toISOString(),
-        }),
-      )
-      setFullName('')
-      setMobile('')
-      setEmail('')
-      setPassword('')
-      setConfirmPassword('')
-      setTermsAccepted(false)
-      setSuccessMessage('')
-      setFieldErrors({})
-      navigate('/')
+      setSuccessMessage('Account created! Please verify your email.')
+      setTimeout(() => navigate('/verify-email'), 1500)
+
     } catch (caughtError) {
-      const isConnectionError =
-        caughtError instanceof TypeError && caughtError.message === 'Failed to fetch'
-
-      setError(
-        isConnectionError
-          ? 'Unable to connect. Please try again later.'
-          : caughtError.message
-      )
+      const message = caughtError?.errors?.[0]?.message || 'Registration failed. Please try again.'
+      setError(message)
     } finally {
       setIsLoading(false)
     }
@@ -219,9 +171,7 @@ function RegisterPage() {
                 aria-describedby={fieldErrors.fullName ? 'fullName-error' : undefined}
               />
               {fieldErrors.fullName ? (
-                <p id="fullName-error" className="field-error">
-                  {fieldErrors.fullName}
-                </p>
+                <p id="fullName-error" className="field-error">{fieldErrors.fullName}</p>
               ) : null}
             </div>
 
@@ -244,9 +194,7 @@ function RegisterPage() {
                 aria-describedby={fieldErrors.mobile ? 'mobile-error' : undefined}
               />
               {fieldErrors.mobile ? (
-                <p id="mobile-error" className="field-error">
-                  {fieldErrors.mobile}
-                </p>
+                <p id="mobile-error" className="field-error">{fieldErrors.mobile}</p>
               ) : null}
             </div>
 
@@ -267,9 +215,7 @@ function RegisterPage() {
                 aria-describedby={fieldErrors.email ? 'email-error' : undefined}
               />
               {fieldErrors.email ? (
-                <p id="email-error" className="field-error">
-                  {fieldErrors.email}
-                </p>
+                <p id="email-error" className="field-error">{fieldErrors.email}</p>
               ) : null}
             </div>
 
@@ -285,7 +231,7 @@ function RegisterPage() {
                     setPassword(event.target.value)
                     clearFieldError('password')
                   }}
-                  placeholder="Create a password"
+                  placeholder="Create a password (min 8 chars)"
                   autoComplete="new-password"
                   aria-invalid={Boolean(fieldErrors.password)}
                   aria-describedby={fieldErrors.password ? 'password-error' : undefined}
@@ -293,16 +239,14 @@ function RegisterPage() {
                 <button
                   className="password-toggle"
                   type="button"
-                  onClick={() => setShowPassword((currentValue) => !currentValue)}
+                  onClick={() => setShowPassword((v) => !v)}
                   aria-label={showPassword ? 'Hide password' : 'Show password'}
                 >
                   {showPassword ? 'Hide' : 'Show'}
                 </button>
               </div>
               {fieldErrors.password ? (
-                <p id="password-error" className="field-error">
-                  {fieldErrors.password}
-                </p>
+                <p id="password-error" className="field-error">{fieldErrors.password}</p>
               ) : null}
             </div>
 
@@ -321,23 +265,19 @@ function RegisterPage() {
                   placeholder="Re-enter your password"
                   autoComplete="new-password"
                   aria-invalid={Boolean(fieldErrors.confirmPassword)}
-                  aria-describedby={
-                    fieldErrors.confirmPassword ? 'confirmPassword-error' : undefined
-                  }
+                  aria-describedby={fieldErrors.confirmPassword ? 'confirmPassword-error' : undefined}
                 />
                 <button
                   className="password-toggle"
                   type="button"
-                  onClick={() => setShowConfirmPassword((currentValue) => !currentValue)}
+                  onClick={() => setShowConfirmPassword((v) => !v)}
                   aria-label={showConfirmPassword ? 'Hide confirm password' : 'Show confirm password'}
                 >
                   {showConfirmPassword ? 'Hide' : 'Show'}
                 </button>
               </div>
               {fieldErrors.confirmPassword ? (
-                <p id="confirmPassword-error" className="field-error">
-                  {fieldErrors.confirmPassword}
-                </p>
+                <p id="confirmPassword-error" className="field-error">{fieldErrors.confirmPassword}</p>
               ) : null}
             </div>
 
@@ -356,7 +296,7 @@ function RegisterPage() {
               />
               <span>
                 I agree to the{' '}
-                <button type="button" className="inline-link" onClick={() => setShowTerms((current) => !current)}>
+                <button type="button" className="inline-link" onClick={() => setShowTerms((c) => !c)}>
                   {showTerms ? 'Hide' : 'View'} Terms & Conditions
                 </button>
               </span>
@@ -368,23 +308,18 @@ function RegisterPage() {
               )}
             </label>
             {fieldErrors.terms ? (
-              <p id="terms-error" className="field-error">
-                {fieldErrors.terms}
-              </p>
+              <p id="terms-error" className="field-error">{fieldErrors.terms}</p>
             ) : null}
 
             {error ? <div className="error-message" role="alert">{error}</div> : null}
             {successMessage ? (
-              <div className="success-message" role="status">
-                {successMessage}
-              </div>
+              <div className="success-message" role="status">{successMessage}</div>
             ) : null}
 
-            <button className="primary-button" type="submit" disabled={isLoading}>
+            <button className="primary-button" type="submit" disabled={isLoading || !isLoaded}>
               {isLoading ? <span className="spinner" aria-hidden="true" /> : null}
               {isLoading ? 'Creating Account...' : 'Sign Up'}
             </button>
-
           </form>
 
           <div className="login-link-row">
