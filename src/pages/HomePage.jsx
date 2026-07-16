@@ -1,4 +1,5 @@
-﻿import { useEffect, useMemo, useState } from 'react'
+﻿import { useUser } from '@clerk/clerk-react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTheme } from '../contexts/ThemeContextValues.jsx'
 import '../home.css'
@@ -66,6 +67,7 @@ function formatOrderDate(isoString) {
 }
 
 function HomePage() {
+  const { user } = useUser()
   const navigate = useNavigate()
   const [searchText, setSearchText] = useState('')
   const [activeSlide, setActiveSlide] = useState(0)
@@ -113,7 +115,7 @@ function HomePage() {
       <header className="home-header">
         <div>
           <p className="eyebrow">Hexa Laundary</p>
-          <h1>Hi, {getUserName()}</h1>
+          <h1>Hi, {user?.firstName || 'there'}</h1>
         </div>
         <div className="header-actions" aria-label="Account actions">
           <ThemeToggle />

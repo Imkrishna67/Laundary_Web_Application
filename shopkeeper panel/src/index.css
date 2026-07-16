@@ -151,12 +151,6 @@ a {
   min-height: 100svh;
 }
 
-.app-content {
-  position: relative;
-  z-index: 1;
-  min-height: 100svh;
-}
-
 html,
 body {
   min-width: 0;

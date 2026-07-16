@@ -1,0 +1,98 @@
+.login-page {
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.login-bg-orb {
+  position: fixed;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.5;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.login-bg-orb-one {
+  width: 420px;
+  height: 420px;
+  background: radial-gradient(circle, var(--primary) 0%, transparent 70%);
+  top: -120px;
+  left: -120px;
+}
+
+.login-bg-orb-two {
+  width: 460px;
+  height: 460px;
+  background: radial-gradient(circle, var(--secondary) 0%, transparent 70%);
+  bottom: -140px;
+  right: -140px;
+}
+
+.login-shell {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 440px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.brand-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+}
+
+.brand-mark {
+  width: 64px;
+  height: 64px;
+  border-radius: var(--radius-md);
+  display: grid;
+  place-items: center;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-md);
+}
+
+.brand-mark svg {
+  width: 40px;
+  height: 40px;
+}
+
+.brand-section h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+}
+
+.brand-section p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.login-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  padding: 28px;
+  backdrop-filter: blur(20px);
+}
+
+.login-card.clerk-card {
+  padding: 8px;
+}
+
+.login-card.clerk-card :global(.cl-card) {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+}

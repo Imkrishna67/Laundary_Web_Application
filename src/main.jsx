@@ -1,24 +1,25 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import { HashRouter } from 'react-router-dom'
-import { ClerkProvider } from '@clerk/clerk-react'
-import App from './App.jsx'
-import './index.css'
-import './dark-theme.css'
-import './ui-polish.css'
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import { BrowserRouter } from 'react-router-dom';
+import { ClerkProvider } from "@clerk/clerk-react";
 
-const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY
+import App from "./App.jsx";
+import "./index.css";
+import "./dark-theme.css";
+import "./ui-polish.css";
 
-if (!PUBLISHABLE_KEY) {
-  throw new Error('Missing Clerk Publishable Key')
+const clerkPubKey = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
+
+if (!clerkPubKey) {
+  throw new Error("Missing Clerk Publishable Key");
 }
 
-createRoot(document.getElementById('root')).render(
+createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
-      <HashRouter>
+    <ClerkProvider publishableKey={clerkPubKey}>
+      <BrowserRouter>
         <App />
-      </HashRouter>
+      </BrowserRouter>
     </ClerkProvider>
-  </StrictMode>,
-)
+  </StrictMode>
+);

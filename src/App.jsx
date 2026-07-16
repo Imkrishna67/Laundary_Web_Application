@@ -1,6 +1,7 @@
 import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { useAuth } from '@clerk/clerk-react'
 import { ThemeProvider } from './contexts/ThemeContext.jsx'
+import ShapeGrid from './components/ShapeGrid.jsx'
 import AddressPage from './pages/AddressPage.jsx'
 import CartPage from './pages/CartPage.jsx'
 import HomePage from './pages/HomePage.jsx'
@@ -20,6 +21,7 @@ import './index.css'
 
 function ProtectedRoute({ children }) {
   const { isSignedIn, isLoaded } = useAuth()
+  const location = useLocation()
 
   if (!isLoaded) {
     return (
@@ -38,7 +40,7 @@ function ProtectedRoute({ children }) {
   }
 
   if (!isSignedIn) {
-    return <Navigate to="/" replace />
+    return <Navigate to="/" state={{ from: location }} replace />
   }
 
   return children
@@ -51,51 +53,64 @@ function App() {
 
   return (
     <ThemeProvider>
-      <Routes>
-        {/* Public Routes */}
-        <Route path="/" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/verify-email" element={<VerifyEmailPage />} />
-        <Route path="/sso-callback" element={<SSOCallback />} />
+      <div className="shapegrid-background">
+        <ShapeGrid
+          speed={0.5}
+          squareSize={40}
+          direction="diagonal"
+          borderColor="#2F293A"
+          hoverFillColor="#222"
+          shape="square"
+          hoverTrailAmount={0}
+        />
+      </div>
+      <div className="app-content">
+        <Routes>
+          {/* Public Routes */}
+          <Route path="/" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/verify-email" element={<VerifyEmailPage />} />
+          <Route path="/sso-callback" element={<SSOCallback />} />
 
-        {/* Protected Routes */}
-        <Route path="/home" element={
-          <ProtectedRoute><HomePage /></ProtectedRoute>
-        } />
-        <Route path="/services" element={
-          <ProtectedRoute><ServiceSelectionPage /></ProtectedRoute>
-        } />
-        <Route path="/cart" element={
-          <ProtectedRoute><CartPage /></ProtectedRoute>
-        } />
-        <Route path="/schedule" element={
-          <ProtectedRoute><SchedulePage /></ProtectedRoute>
-        } />
-        <Route path="/address" element={
-          <ProtectedRoute><AddressPage /></ProtectedRoute>
-        } />
-        <Route path="/orders" element={
-          <ProtectedRoute><OrdersPage /></ProtectedRoute>
-        } />
-        <Route path="/order-confirmation" element={
-          <ProtectedRoute><OrderConfirmationPage /></ProtectedRoute>
-        } />
-        <Route path="/track-order" element={
-          <ProtectedRoute><OrderTrackingPage /></ProtectedRoute>
-        } />
-        <Route path="/order-history/:id" element={
-          <ProtectedRoute><OrderHistoryPage /></ProtectedRoute>
-        } />
-        <Route path="/order-history" element={
-          <ProtectedRoute><OrderHistoryPage /></ProtectedRoute>
-        } />
-        <Route path="/profile" element={
-          <ProtectedRoute><ProfilePage /></ProtectedRoute>
-        } />
+          {/* Protected Routes */}
+          <Route path="/home" element={
+            <ProtectedRoute><HomePage /></ProtectedRoute>
+          } />
+          <Route path="/services" element={
+            <ProtectedRoute><ServiceSelectionPage /></ProtectedRoute>
+          } />
+          <Route path="/cart" element={
+            <ProtectedRoute><CartPage /></ProtectedRoute>
+          } />
+          <Route path="/schedule" element={
+            <ProtectedRoute><SchedulePage /></ProtectedRoute>
+          } />
+          <Route path="/address" element={
+            <ProtectedRoute><AddressPage /></ProtectedRoute>
+          } />
+          <Route path="/orders" element={
+            <ProtectedRoute><OrdersPage /></ProtectedRoute>
+          } />
+          <Route path="/order-confirmation" element={
+            <ProtectedRoute><OrderConfirmationPage /></ProtectedRoute>
+          } />
+          <Route path="/track-order" element={
+            <ProtectedRoute><OrderTrackingPage /></ProtectedRoute>
+          } />
+          <Route path="/order-history/:id" element={
+            <ProtectedRoute><OrderHistoryPage /></ProtectedRoute>
+          } />
+          <Route path="/order-history" element={
+            <ProtectedRoute><OrderHistoryPage /></ProtectedRoute>
+          } />
+          <Route path="/profile" element={
+            <ProtectedRoute><ProfilePage /></ProtectedRoute>
+          } />
 
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-      {shouldShowNav && <BottomNav />}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+        {shouldShowNav && <BottomNav />}
+      </div>
     </ThemeProvider>
   )
 }
