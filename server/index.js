@@ -18,7 +18,8 @@ app.use(cors({
   origin: [
     'http://localhost:5173',
     'http://localhost:5174',
-    'https://hexa-laundary.vercel.app'
+    'https://hexa-laundary.vercel.app',
+    'https://laundary-web-application.vercel.app' // <-- Vercel domain added here
   ]
 }))
 
@@ -186,3 +187,6 @@ app.patch('/api/orders/:orderId/status', async (req, res) => {
 app.listen(port, "0.0.0.0", () => {
   console.log(`Server running on port ${port}`)
 })
+
+// Vercel Serverless requirements ke liye export default app add kar diya hai
+export default app;
