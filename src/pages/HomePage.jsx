@@ -6,15 +6,6 @@ import '../home.css'
 
 const apiBaseUrl = 'https://quickwash-backend.onrender.com'
 
-function ThemeToggle() {
-  const { theme, toggle } = useTheme()
-  return (
-    <button className="icon-button theme-toggle" type="button" aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`} onClick={toggle}>
-      {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
-    </button>
-  )
-}
-
 const promoSlides = [
   {
     badge: 'New User Offer',
@@ -41,6 +32,15 @@ const services = [
   { name: 'Bedding', description: 'Bedsheets & blankets', icon: BeddingIcon },
   { name: 'Fold & Pack', description: 'Neat finishing', icon: FoldIcon },
 ]
+
+function ThemeToggle() {
+  const { theme, toggle } = useTheme()
+  return (
+    <button className="icon-button theme-toggle" type="button" aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`} onClick={toggle}>
+      {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
+    </button>
+  )
+}
 
 function getUserName() {
   try {
@@ -121,9 +121,6 @@ function HomePage() {
           <ThemeToggle />
           <button className="icon-button" type="button" aria-label="Cart" onClick={() => navigate('/cart')}>
             <CartIcon />
-          </button>
-          <button className="icon-button" type="button" aria-label="Profile" onClick={() => navigate('/profile')}>
-            <ProfileIcon />
           </button>
         </div>
       </header>
@@ -240,15 +237,6 @@ function HomePage() {
   )
 }
 
-function ProfileIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path d="M20 21a8 8 0 0 0-16 0" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-      <circle cx="12" cy="7" r="4" stroke="currentColor" strokeWidth="2" />
-    </svg>
-  )
-}
-
 function SearchIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -312,17 +300,6 @@ function FoldIcon() {
   )
 }
 
-function CartIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path d="M6 6h15l-2 9H8L6 6Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M6 6 5 3H3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-      <circle cx="9" cy="20" r="1.5" fill="currentColor" />
-      <circle cx="18" cy="20" r="1.5" fill="currentColor" />
-    </svg>
-  )
-}
-
 function SunIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -336,6 +313,17 @@ function MoonIcon() {
   return (
     <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
       <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
+}
+
+function CartIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M6 6h15l-2 9H8L6 6Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M6 6 5 3H3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      <circle cx="9" cy="20" r="1.5" fill="currentColor" />
+      <circle cx="18" cy="20" r="1.5" fill="currentColor" />
     </svg>
   )
 }

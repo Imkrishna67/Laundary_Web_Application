@@ -1,10 +1,10 @@
 .home-page {
   min-height: 100svh;
-  padding: 18px clamp(14px, 3vw, 28px) calc(78px + env(safe-area-inset-bottom));
-  background: var(--background);
+  padding: 86px clamp(14px, 3vw, 28px) calc(78px + env(safe-area-inset-bottom));
+  background-color: var(--background) !important;
+  background-image: none !important; /* Yeh pichhe ki saari lines ko instantly delete kar dega */
   color: var(--text);
 }
-
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -32,6 +32,13 @@
   gap: 14px;
   margin-bottom: 20px;
   animation: fadeIn 0.4s ease;
+  background: transparent !important;
+  box-shadow: none !important;
+  border: none !important;
+  position: relative; /* Fixed property hata di taaki block apni normal position par float kare */
+  width: 100%;
+  height: auto;
+  padding: 0;
 }
 
 .home-header h1 {
