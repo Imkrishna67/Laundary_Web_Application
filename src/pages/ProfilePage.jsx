@@ -1,6 +1,6 @@
 ﻿import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useClerk, useUser } from '@clerk/clerk-react'
+import { useClerk, useUser, UserProfile } from '@clerk/clerk-react' // Added UserProfile import
 import '../profile.css'
 
 function BackIcon() {
@@ -18,10 +18,9 @@ function ProfilePage() {
   const [notifications, setNotifications] = useState(true)
   const [language, setLanguage] = useState('English')
   const [toast, setToast] = useState({ show: false, text: '' })
+  
+  // Is state se hum Clerk ka premium user profile modal toggle karenge
   const [isEditing, setIsEditing] = useState(false)
-  const [editName, setEditName] = useState('')
-  const [editMobile, setEditMobile] = useState('')
-  const [editEmail, setEditEmail] = useState('')
 
   function getStoredUser() {
     try {
@@ -52,46 +51,6 @@ function ProfilePage() {
     setTimeout(() => setToast({ show: false, text: '' }), 3000)
   }
 
-  function startEdit() {
-    setEditName(fullName === 'User' ? '' : fullName)
-    setEditMobile(mobile)
-    setEditEmail(email === storedUser.identifier ? '' : email)
-    setIsEditing(true)
-  }
-
-  function saveProfile() {
-    const trimmedName = editName.trim()
-    const trimmedMobile = editMobile.replace(/\D/g, '')
-    const trimmedEmail = editEmail.trim().toLowerCase()
-
-    if (!trimmedName) {
-      showToast('Please enter your name.')
-      return
-    }
-
-    if (trimmedMobile && !/^[6-9]\d{9}$/.test(trimmedMobile)) {
-      showToast('Enter a valid 10-digit mobile number.')
-      return
-    }
-
-    if (trimmedEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(trimmedEmail)) {
-      showToast('Enter a valid email address.')
-      return
-    }
-
-    const updatedUser = {
-      ...storedUser,
-      fullName: trimmedName,
-      mobile: trimmedMobile,
-      email: trimmedEmail || storedUser.identifier || '',
-    }
-
-    localStorage.setItem('hexalaundaryUser', JSON.stringify(updatedUser))
-    setIsEditing(false)
-    showToast('Profile updated successfully.')
-    setTimeout(() => window.location.reload(), 500)
-  }
-
   function handlePaymentMethods() {
     showToast('Payment methods will be available soon.')
   }
@@ -111,7 +70,7 @@ function ProfilePage() {
   }
 
   return (
-    <main className="profile-page">
+    <main className="profile-page" style={{ position: 'relative' }}>
       <header className="profile-header">
         <button type="button" className="back-button" onClick={() => navigate(-1)} aria-label="Go back">
           <BackIcon />
@@ -124,51 +83,27 @@ function ProfilePage() {
       )}
 
       <section className="profile-card">
-        <div className="profile-avatar">{getInitials(fullName)}</div>
-        <div className="profile-info">
-          {isEditing ? (
-            <>
-              <input
-                className="edit-input"
-                type="text"
-                value={editName}
-                onChange={(e) => setEditName(e.target.value)}
-                placeholder="Full Name"
-              />
-              <input
-                className="edit-input"
-                type="tel"
-                value={editMobile}
-                onChange={(e) => setEditMobile(e.target.value.replace(/\D/g, '').slice(0, 10))}
-                placeholder="Mobile Number"
-                maxLength={10}
-              />
-              <input
-                className="edit-input"
-                type="email"
-                value={editEmail}
-                onChange={(e) => setEditEmail(e.target.value)}
-                placeholder="Email"
-              />
-            </>
-          ) : (
-            <>
-              <h2>{fullName}</h2>
-              {mobile ? <p>+91 {mobile}</p> : null}
-              <p>{email}</p>
-            </>
-          )}
-        </div>
-        {isEditing ? (
-          <div className="edit-actions">
-            <button type="button" className="edit-profile-button save" onClick={saveProfile}>Save</button>
-            <button type="button" className="edit-profile-button cancel" onClick={() => setIsEditing(false)}>Cancel</button>
-          </div>
+        {/* Agar user ki photo Clerk par hai toh dynamic photo dikhao, nahi toh initials */}
+        {user?.imageUrl ? (
+          <img 
+            src={user.imageUrl} 
+            alt="Avatar" 
+            style={{ width: '64px', height: '64px', borderRadius: '50%', objectFit: 'cover', marginRight: '16px', border: '2px solid #18A7FF' }} 
+          />
         ) : (
-          <button type="button" className="edit-profile-button" onClick={startEdit}>
-            Edit Profile
-          </button>
+          <div className="profile-avatar">{getInitials(fullName)}</div>
         )}
+        
+        <div className="profile-info">
+          <h2>{fullName}</h2>
+          {mobile ? <p>+91 {mobile}</p> : null}
+          <p>{email}</p>
+        </div>
+
+        {/* Edit Profile par click karte hi ab Clerk ka complete management modal khulega */}
+        <button type="button" className="edit-profile-button" onClick={() => setIsEditing(true)}>
+          Edit Profile
+        </button>
       </section>
 
       <section className="menu-section">
@@ -226,6 +161,47 @@ function ProfilePage() {
           <span className="menu-text">Logout</span>
         </button>
       </section>
+
+      {/* --- CLERK PROFILE MODAL WITH INTEGRATED DARK DESIGN --- */}
+      {isEditing && (
+        <div className="clerk-modal-overlay" style={{ position: 'fixed', top: 0, left: 0, width: '100vw', height: '100vh', background: 'rgba(0, 0, 0, 0.75)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 9999 }}>
+          <div className="clerk-modal-content" style={{ position: 'relative', background: '#161b22', border: '1px solid #30363d', borderRadius: '12px', padding: '24px 16px 16px 16px', maxHeight: '85vh', overflowY: 'auto' }}>
+            
+            {/* Modal close header handler */}
+            <button 
+              onClick={() => setIsEditing(false)} 
+              style={{ position: 'absolute', top: '12px', right: '12px', background: '#30363d', border: 'none', color: '#ffffff', borderRadius: '50%', width: '28px', height: '28px', cursor: 'pointer', fontWeight: 'bold', zIndex: 10000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            >
+              ✕
+            </button>
+
+            {/* Clerk standard control blocks synced with theme styles */}
+            <UserProfile 
+              appearance={{
+                variables: {
+                  colorBackground: '#161b22',
+                  colorText: '#ffffff',
+                  colorPrimary: '#18A7FF',
+                  colorInputBackground: '#0d1117',
+                  colorInputText: '#ffffff',
+                  colorNeutral: '#8b949e',
+                },
+                elements: {
+                  card: { boxShadow: 'none', background: '#161b22' },
+                  navbar: { background: '#0d1117', borderRight: '1px solid #30363d' },
+                  navbarButton: { color: '#8b949e' },
+                  headerTitle: { color: '#ffffff' },
+                  headerSubtitle: { color: '#8b949e' },
+                  profileSectionTitle: { color: '#ffffff', borderBottom: '1px solid #30363d' },
+                  formFieldLabel: { color: '#8b949e' },
+                  breadcrumbsItem: { color: '#8b949e' },
+                  fileDropAreaInline: { background: '#0d1117', border: '1px dotted #30363d' }
+                }
+              }}
+            />
+          </div>
+        </div>
+      )}
     </main>
   )
 }

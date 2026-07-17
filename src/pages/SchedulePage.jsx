@@ -97,21 +97,25 @@ function SchedulePage() {
           <div className="field-group">
             <label>Pickup Time Slot</label>
             <div className="slot-grid">
-              {timeSlots.map((slot) => (
-                <button
-                  key={slot.value}
-                  className={`slot-button ${pickupSlot === slot.value ? 'active' : ''}`}
-                  type="button"
-                  aria-pressed={pickupSlot === slot.value}
-                  onClick={() => {
-                    setPickupSlot(slot.value)
-                    setMessage({ type: '', text: '' })
-                  }}
-                >
-                  <span>{slot.label}</span>
-                  <span aria-hidden="true">✓</span>
-                </button>
-              ))}
+              {timeSlots.map((slot) => {
+                const isActive = pickupSlot === slot.value;
+                return (
+                  <button
+                    key={slot.value}
+                    className={`slot-button ${isActive ? 'active' : ''}`}
+                    type="button"
+                    aria-pressed={isActive}
+                    onClick={() => {
+                      setPickupSlot(slot.value)
+                      setMessage({ type: '', text: '' })
+                    }}
+                  >
+                    <span style={isActive ? { color: '#000000', fontWeight: '700' } : {}}>{slot.label}</span>
+                    {/* 👇 TICK LOGIC FIXED: Ab sirf active hone par hi render hoga aur rang black rahega */}
+                    {isActive && <span aria-hidden="true" style={{ color: '#000000' }}>✓</span>}
+                  </button>
+                );
+              })}
             </div>
           </div>
         </section>
@@ -138,21 +142,25 @@ function SchedulePage() {
           <div className="field-group">
             <label>Delivery Time Slot</label>
             <div className="slot-grid">
-              {timeSlots.map((slot) => (
-                <button
-                  key={slot.value}
-                  className={`slot-button ${deliverySlot === slot.value ? 'active' : ''}`}
-                  type="button"
-                  aria-pressed={deliverySlot === slot.value}
-                  onClick={() => {
-                    setDeliverySlot(slot.value)
-                    setMessage({ type: '', text: '' })
-                  }}
-                >
-                  <span>{slot.label}</span>
-                  <span aria-hidden="true">✓</span>
-                </button>
-              ))}
+              {timeSlots.map((slot) => {
+                const isActive = deliverySlot === slot.value;
+                return (
+                  <button
+                    key={slot.value}
+                    className={`slot-button ${isActive ? 'active' : ''}`}
+                    type="button"
+                    aria-pressed={isActive}
+                    onClick={() => {
+                      setDeliverySlot(slot.value)
+                      setMessage({ type: '', text: '' })
+                    }}
+                  >
+                    <span style={isActive ? { color: '#000000', fontWeight: '700' } : {}}>{slot.label}</span>
+                    {/* 👇 TICK LOGIC FIXED: Ab sirf active hone par hi render hoga aur rang black rahega */}
+                    {isActive && <span aria-hidden="true" style={{ color: '#000000' }}>✓</span>}
+                  </button>
+                );
+              })}
             </div>
           </div>
         </section>

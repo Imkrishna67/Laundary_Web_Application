@@ -1,4 +1,4 @@
-import { UserButton } from "@clerk/clerk-react";
+import { useUser } from "@clerk/clerk-react"; // Import changed: UserButton ki jagah useUser hook lagaya
 import { useLocation, useNavigate } from "react-router-dom";
 
 function HomeIcon() {
@@ -29,58 +29,69 @@ function ScheduleIcon() {
   );
 }
 
-
 function BottomNav() {
-
   const navigate = useNavigate();
   const location = useLocation();
+  const { user } = useUser(); // User ka dynamic state aur image access karne ke liye
 
   const active = (path) =>
     location.pathname === path ? "active" : "";
 
-
   return (
     <nav className="bottom-nav">
-
       <button className={active("/home")} onClick={() => navigate("/home")}>
         <HomeIcon />
         <span>Home</span>
       </button>
-
 
       <button className={active("/orders")} onClick={() => navigate("/orders")}>
         <OrdersIcon />
         <span>Orders</span>
       </button>
 
-
       <button className={active("/schedule")} onClick={() => navigate("/schedule")}>
         <ScheduleIcon />
         <span>Schedule</span>
       </button>
 
-
+      {/* Profile Button: Ab click par dropdown nahi, balki seedhe navigation kaam karegi */}
       <button 
         className={`profile-button ${active("/profile")}`}
         onClick={() => navigate("/profile")}
       >
-        <div className="clerk-wrapper">
-          <UserButton
-            appearance={{
-              elements:{
-                avatarBox:{
-                  width:"28px",
-                  height:"28px"
-                }
-              }
-            }}
-          />
+        <div className="clerk-wrapper" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          {user?.imageUrl ? (
+            <img 
+              src={user.imageUrl} 
+              alt="Profile" 
+              style={{ 
+                width: "28px", 
+                height: "28px", 
+                borderRadius: "50%",
+                objectFit: "cover",
+                border: location.pathname === "/profile" ? "2px solid #18A7FF" : "1px solid #30363d"
+              }}
+            />
+          ) : (
+            <div style={{
+              width: "28px",
+              height: "28px",
+              borderRadius: "50%",
+              background: "#21262d",
+              color: "#ffffff",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: "12px",
+              fontWeight: "bold",
+              border: "1px solid #30363d"
+            }}>
+              {user?.firstName?.charAt(0) || "U"}
+            </div>
+          )}
         </div>
-
         <span>Profile</span>
       </button>
-
-
     </nav>
   );
 }
