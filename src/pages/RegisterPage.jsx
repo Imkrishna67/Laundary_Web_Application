@@ -20,6 +20,7 @@ function RegisterPage() {
                 stroke="#18A7FF"
                 strokeWidth="4"
                 strokeLinecap="round"
+                fill="none"
               />
               <path
                 d="M46 15l2.2-4.2L50.5 15l4.2 2.2-4.2 2.2-2.3 4.3-2.2-4.3-4.2-2.2L46 15Z"
@@ -54,26 +55,27 @@ function RegisterPage() {
                 headerTitle: { color: '#ffffff' },
                 headerSubtitle: { color: '#8b949e' },
                 
-                // --- SIDE BY SIDE BUTTONS SETUP ---
+                // --- SIDE BY SIDE BUTTONS SETUP (PERFECT WORKING STRUCTURE) ---
                 socialButtonsBlock: {
-                  display: 'flex',
-                  flexDirection: 'row',
-                  gap: '8px',
-                  width: '100%',
+                  display: 'flex !important',
+                  flexDirection: 'row !important',
+                  gap: '12px !important',
+                  width: '100% !important',
                 },
                 socialButtonsBlockButton: {
-                  flex: 1,
-                  display: 'flex',
-                  justifyContent: 'center',
-                  alignItems: 'center',
+                  flex: '1 !important',
+                  display: 'flex !important',
+                  justifyContent: 'center !important',
+                  alignItems: 'center !important',
                   background: '#21262d',
                   border: '1px solid #30363d',
                   color: '#ffffff',
-                  padding: '10px',
+                  padding: '10px !important',
+                  height: '40px',
                 },
                 socialButtonsBlockButtonText: {
-                  fontSize: '13px',
-                  fontWeight: '500',
+                  fontSize: '14px',
+                  fontWeight: '600',
                 },
                 // ----------------------------------
 
@@ -85,12 +87,24 @@ function RegisterPage() {
                   border: '1px solid #30363d',
                   color: '#ffffff',
                 },
+                // Main continue key font optimization
                 formButtonPrimary: {
                   background: '#18A7FF',
-                  color: '#ffffff',
+                  color: '#ffffff !important', // Strictly keeps text visible white
+                  fontWeight: '700',
+                  textTransform: 'none',
+                  fontSize: '14px',
+                  '&:hover': {
+                    background: '#1596e6',
+                  }
+                },
+                // Secondary check targeting internal localization texts
+                formButtonPrimary__continue: {
+                  color: '#ffffff !important',
                 },
                 footerActionText: { color: '#8b949e' },
                 footerActionLink: { color: '#18A7FF' },
+                identityPreviewText: { color: '#ffffff' },
               }
             }}
           />

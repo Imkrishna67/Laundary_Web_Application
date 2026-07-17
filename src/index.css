@@ -172,3 +172,24 @@ body {
 .no-transition *::after {
   transition: none !important;
 }
+
+/* ==========================================================================
+   STRICT CONTINUE BUTTON TEXT FIX ONLY - ZERO LAYOUT INTERFERENCE
+   ========================================================================== */
+
+/* Target strictly the final primary active continue submit button inner text */
+.cl-formButtonPrimary,
+.cl-formButtonPrimary *,
+button[type="submit"].cl-formButtonPrimary,
+button[type="submit"].cl-formButtonPrimary *,
+button[data-localization-key="formButtonPrimary"],
+button[data-localization-key="formButtonPrimary"] * {
+  color: #ffffff !important;
+  font-weight: 700 !important;
+}
+
+/* Hover protection for text readability */
+.cl-formButtonPrimary:hover,
+button[type="submit"].cl-formButtonPrimary:hover * {
+  color: #ffffff !important;
+}

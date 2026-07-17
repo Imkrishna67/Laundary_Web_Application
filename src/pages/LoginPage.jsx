@@ -20,6 +20,7 @@ function LoginPage() {
                 stroke="#18A7FF"
                 strokeWidth="4"
                 strokeLinecap="round"
+                fill="none"
               />
               <path
                 d="M46 15l2.2-4.2L50.5 15l4.2 2.2-4.2 2.2-2.3 4.3-2.2-4.3-4.2-2.2L46 15Z"
@@ -53,6 +54,31 @@ function LoginPage() {
                 },
                 headerTitle: { color: '#ffffff' },
                 headerSubtitle: { color: '#8b949e' },
+                
+                // --- LOGIN WALA FIXED SIDE-BY-SIDE BUTTON SETUP ---
+                socialButtonsBlock: {
+                  display: 'flex',
+                  flexDirection: 'row',
+                  gap: '8px',
+                  width: '100%',
+                },
+                socialButtonsBlockButton: {
+                  flex: 1,
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  background: '#21262d',
+                  border: '1px solid #30363d',
+                  color: '#ffffff',
+                  padding: '10px',
+                  height: '40px',
+                },
+                socialButtonsBlockButtonText: {
+                  fontSize: '13px',
+                  fontWeight: '500',
+                },
+                // --------------------------------------------------
+
                 dividerLine: { background: '#30363d' },
                 dividerText: { color: '#8b949e' },
                 formFieldLabel: { color: '#8b949e' },
@@ -61,9 +87,12 @@ function LoginPage() {
                   border: '1px solid #30363d',
                   color: '#ffffff',
                 },
+                // Niche waale main button ka color bright white force kiya
                 formButtonPrimary: {
                   background: '#18A7FF',
-                  color: '#ffffff',
+                  color: '#ffffff !important',
+                  fontWeight: '700',
+                  textTransform: 'none',
                 },
                 footerActionText: { color: '#8b949e' },
                 footerActionLink: { color: '#18A7FF' },
