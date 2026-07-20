@@ -6,6 +6,7 @@ import dotenv from 'dotenv'
 import User from './models/User.js'
 import Service from './models/Service.js'
 import Order from './models/Order.js'
+import Shop from './models/Shop.js'
 
 dotenv.config()
 
@@ -19,7 +20,7 @@ app.use(cors({
     'http://localhost:5173',
     'http://localhost:5174',
     'https://hexa-laundary.vercel.app',
-    'https://laundary-web-application.vercel.app' // <-- Vercel domain added here
+    'https://laundary-web-application.vercel.app'
   ]
 }))
 
@@ -39,6 +40,48 @@ app.get("/api/health", (req, res) => {
 app.get("/", (req, res) => {
   res.json({ message: "Hexa Laundary Backend Running 🚀" })
 })
+
+// ---------------- SHOPKEEPER / SHOPS ENDPOINTS ----------------
+
+// 1. REGISTER NEW SHOP (Called from shopkeeper-panel)
+app.post('/api/shops/register', async (req, res) => {
+  try {
+    const { shopName, ownerName, mobile, email, password, address } = req.body
+
+    const existingShop = await Shop.findOne({ $or: [{ email }, { mobile }] })
+    if (existingShop) {
+      return res.status(409).json({ message: 'A shop with this email or mobile already exists.' })
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10)
+
+    const newShop = new Shop({
+      shopName,
+      ownerName,
+      mobile,
+      email,
+      password: hashedPassword,
+      address
+    })
+
+    await newShop.save()
+    res.status(201).json({ message: "Shop registered successfully!" })
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+})
+
+// 2. GET ALL SHOPS (Fixed: Filter removed so your registered shops display properly)
+app.get('/api/shops', async (req, res) => {
+  try {
+    const shops = await Shop.find().select('shopName ownerName mobile address')
+    res.json(shops)
+  } catch (err) {
+    res.status(500).json({ error: err.message })
+  }
+})
+
+// ---------------- USER AUTH ----------------
 
 // REGISTER
 app.post('/api/auth/register', async (req, res) => {
@@ -105,7 +148,6 @@ app.post('/api/auth/login', async (req, res) => {
 
 // ---------------- SERVICES ----------------
 
-// GET all services
 app.get('/api/services', async (req, res) => {
   try {
     const services = await Service.find()
@@ -115,7 +157,6 @@ app.get('/api/services', async (req, res) => {
   }
 })
 
-// POST add service
 app.post('/api/services', async (req, res) => {
   try {
     const service = new Service(req.body)
@@ -128,7 +169,6 @@ app.post('/api/services', async (req, res) => {
 
 // ---------------- ORDERS ----------------
 
-// POST place order
 app.post('/api/orders', async (req, res) => {
   try {
     const order = new Order(req.body)
@@ -139,7 +179,6 @@ app.post('/api/orders', async (req, res) => {
   }
 })
 
-// GET user orders
 app.get('/api/orders/:userId', async (req, res) => {
   try {
     const orders = await Order.find({ userId: req.params.userId }).sort({ createdAt: -1 })
@@ -149,7 +188,6 @@ app.get('/api/orders/:userId', async (req, res) => {
   }
 })
 
-// GET single order
 app.get('/api/orders/detail/:orderId', async (req, res) => {
   try {
     const order = await Order.findById(req.params.orderId)
@@ -160,7 +198,6 @@ app.get('/api/orders/detail/:orderId', async (req, res) => {
   }
 })
 
-// PATCH update order status
 app.patch('/api/orders/:orderId/status', async (req, res) => {
   try {
     const order = await Order.findById(req.params.orderId)
@@ -188,5 +225,4 @@ app.listen(port, "0.0.0.0", () => {
   console.log(`Server running on port ${port}`)
 })
 
-// Vercel Serverless requirements ke liye export default app add kar diya hai
 export default app;

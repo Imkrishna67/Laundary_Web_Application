@@ -1,331 +1,379 @@
-﻿import { useUser } from '@clerk/clerk-react'
-import { useEffect, useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-import { useTheme } from '../contexts/ThemeContextValues.jsx'
-import '../home.css'
+﻿import React, { useState, useEffect } from 'react';
+import { Search, Moon, Sun, ShoppingCart, Shirt, Layers, Wind, Sparkles, Scissors, Box, MapPin } from 'lucide-react';
 
-const apiBaseUrl = 'https://quickwash-backend.onrender.com'
+export default function HomePage() {
+  const [isDarkMode, setIsDarkMode] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [shops, setShops] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-const promoSlides = [
-  {
-    badge: 'New User Offer',
-    title: 'Get 20% OFF on your first wash',
-    description: 'Fresh clothes, doorstep pickup, and fast delivery.',
-  },
-  {
-    badge: 'Weekend Deal',
-    title: 'Free pickup on orders above ₹799',
-    description: 'Book today and enjoy contactless laundry service.',
-  },
-  {
-    badge: 'Premium Care',
-    title: 'Dry clean 3 shirts at ₹299',
-    description: 'Premium fabric care for office and party wear.',
-  },
-]
+  // Fallback shops list (Dono keys rakh di hain taaki dummy data bhi na phate)
+  const dummyShops = [
+    { _id: '1', shopName: 'Hexa Premium Cleaners', name: 'Hexa Premium Cleaners', address: 'Sector 4, Near Metro Station', services: ['Wash', 'Iron', 'Dry Clean'] },
+    { _id: '2', shopName: 'Hari Krishna Laundry Hub', name: 'Hari Krishna Laundry Hub', address: 'Gomti Nagar, Block C', services: ['Wash', 'Fold & Pack'] },
+    { _id: '3', shopName: 'Express Steam Iron', name: 'Express Steam Iron', address: 'Aliganj Main Road', services: ['Iron', 'Bedding'] }
+  ];
 
-const services = [
-  { name: 'Wash', description: 'Everyday clothes', icon: WashIcon },
-  { name: 'Dry Clean', description: 'Suits & formal wear', icon: DryIcon },
-  { name: 'Iron', description: 'Steam & press', icon: IronIcon },
-  { name: 'Shoe Clean', description: 'Sneakers & sports shoes', icon: ShoeIcon },
-  { name: 'Bedding', description: 'Bedsheets & blankets', icon: BeddingIcon },
-  { name: 'Fold & Pack', description: 'Neat finishing', icon: FoldIcon },
-]
+  const API_URL = 'http://localhost:5000/api/shops'; 
 
-function ThemeToggle() {
-  const { theme, toggle } = useTheme()
-  return (
-    <button className="icon-button theme-toggle" type="button" aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`} onClick={toggle}>
-      {theme === 'dark' ? <SunIcon /> : <MoonIcon />}
-    </button>
-  )
-}
-
-function getUserName() {
-  try {
-    const storedUser = localStorage.getItem('hexalaundaryUser')
-    if (!storedUser) return 'there'
-    const user = JSON.parse(storedUser)
-    const name = user.fullName || user.identifier || 'there'
-    if (!name) return 'there'
-    if (name.includes('@')) return name.split('@')[0]
-    return name.split(' ')[0]
-  } catch {
-    return 'there'
-  }
-}
-
-function formatOrderDate(isoString) {
-  if (!isoString) return ''
-  const date = new Date(isoString)
-  return date.toLocaleDateString('en-IN', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  })
-}
-
-function HomePage() {
-  const { user } = useUser()
-  const navigate = useNavigate()
-  const [searchText, setSearchText] = useState('')
-  const [activeSlide, setActiveSlide] = useState(0)
-  const [activeOrder, setActiveOrder] = useState(null)
-
-  // Fetch latest active order from MongoDB
   useEffect(() => {
-    async function fetchActiveOrder() {
+    const fetchShops = async () => {
       try {
-        const user = JSON.parse(localStorage.getItem('hexalaundaryUser') || '{}')
-        if (!user.email) return
-
-        const response = await fetch(`${apiBaseUrl}/api/orders/${encodeURIComponent(user.email)}`)
-        const orders = await response.json()
-
-        const ongoing = orders.find((order) =>
-          !['Delivered', 'Cancelled'].includes(order.status)
-        )
-        setActiveOrder(ongoing || null)
+        setLoading(true);
+        const response = await fetch(API_URL);
+        if (!response.ok) throw new Error(`Status: ${response.status}`);
+        const data = await response.json();
+        
+        if (data && data.length > 0) {
+          setShops(data);
+        } else {
+          setShops(dummyShops);
+        }
       } catch (err) {
-        console.error('Failed to fetch active order:', err)
+        console.warn("Backend API se connect nahi hua, showing mockup data instead.");
+        setShops(dummyShops);
+      } finally {
+        setLoading(false);
       }
+    };
+    fetchShops();
+  }, []);
+
+  // FIX 1: shop.name ki jagah shop.shopName use kiya search ke liye
+  const filteredShops = shops.filter(shop =>
+    (shop.shopName || shop.name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (shop.address || '').toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const styles = {
+    wrapper: {
+      minHeight: '100vh',
+      backgroundColor: '#0a0f1d',
+      color: '#ffffff',
+      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      padding: '40px 60px 40px 60px',
+      boxSizing: 'border-box'
+    },
+    header: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'flex-start',
+      marginBottom: '30px'
+    },
+    brandText: {
+      fontSize: '11px',
+      fontWeight: '700',
+      letterSpacing: '1.5px',
+      color: '#637393',
+      textTransform: 'uppercase',
+      marginBottom: '6px'
+    },
+    welcomeText: {
+      fontSize: '32px',
+      fontWeight: '700',
+      margin: 0
+    },
+    actionControls: {
+      display: 'flex',
+      gap: '12px'
+    },
+    iconCircle: {
+      width: '44px',
+      height: '44px',
+      borderRadius: '50%',
+      backgroundColor: '#131926',
+      border: '1px solid #1e2638',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      cursor: 'pointer',
+      color: '#94a3b8'
+    },
+    searchContainer: {
+      position: 'relative',
+      maxWidth: '500px',
+      marginBottom: '40px'
+    },
+    searchInput: {
+      width: '100%',
+      padding: '16px 16px 16px 48px',
+      borderRadius: '30px',
+      backgroundColor: '#131a2a',
+      border: '1px solid #1e293b',
+      color: '#ffffff',
+      fontSize: '15px',
+      outline: 'none',
+      boxSizing: 'border-box'
+    },
+    searchIcon: {
+      position: 'absolute',
+      left: '18px',
+      top: '50%',
+      transform: 'translateY(-50%)',
+      color: '#475569'
+    },
+    mainGrid: {
+      display: 'grid',
+      gridTemplateColumns: '1.5fr 1fr',
+      gap: '30px',
+      alignItems: 'start',
+      marginBottom: '40px'
+    },
+    promoCard: {
+      background: 'linear-gradient(135deg, #5b86e5 0%, #36d1dc 100%)',
+      borderRadius: '24px',
+      padding: '40px',
+      minHeight: '340px',
+      position: 'relative',
+      color: '#ffffff',
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'space-between',
+      boxSizing: 'border-box'
+    },
+    badge: {
+      backgroundColor: 'rgba(255, 255, 255, 0.25)',
+      color: '#ffffff',
+      padding: '6px 14px',
+      borderRadius: '20px',
+      fontSize: '12px',
+      fontWeight: '600',
+      display: 'inline-block',
+      backdropFilter: 'blur(6px)'
+    },
+    promoHeading: {
+      fontSize: '38px',
+      fontWeight: '800',
+      lineHeight: '1.2',
+      margin: '24px 0 12px 0',
+      color: '#ffffff',
+      maxWidth: '420px'
+    },
+    promoSub: {
+      fontSize: '15px',
+      color: 'rgba(255, 255, 255, 0.9)',
+      margin: 0
+    },
+    dotsContainer: {
+      display: 'flex',
+      gap: '6px',
+      marginTop: '20px'
+    },
+    dot: (active) => ({
+      width: active ? '18px' : '8px',
+      height: '8px',
+      borderRadius: '4px',
+      backgroundColor: active ? '#ffffff' : 'rgba(255, 255, 255, 0.4)',
+      transition: 'all 0.3s'
+    }),
+    sectionHeader: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: '20px'
+    },
+    sectionTitle: {
+      fontSize: '20px',
+      fontWeight: '700',
+      margin: 0
+    },
+    seeAll: {
+      fontSize: '13px',
+      color: '#3b82f6',
+      fontWeight: '600',
+      cursor: 'pointer',
+      background: 'none',
+      border: 'none'
+    },
+    servicesGrid: {
+      display: 'grid',
+      gridTemplateColumns: 'repeat(3, 1fr)',
+      gap: '16px'
+    },
+    // Fix layout compression by adding minWidth to keep standard style
+    serviceCard: {
+      backgroundColor: '#121824',
+      border: '1px solid #1c2436',
+      borderRadius: '20px',
+      padding: '24px 16px',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      textAlign: 'center',
+      gap: '12px',
+      cursor: 'pointer'
+    },
+    serviceIconBox: {
+      color: '#3b82f6',
+      marginBottom: '4px'
+    },
+    serviceName: {
+      fontSize: '15px',
+      fontWeight: '700',
+      margin: 0
+    },
+    serviceDesc: {
+      fontSize: '11px',
+      color: '#64748b',
+      margin: 0,
+      lineHeight: '1.3'
+    },
+    shopsContainer: {
+      marginTop: '20px'
+    },
+    shopsGrid: {
+      display: 'grid',
+      gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
+      gap: '20px',
+      marginTop: '16px'
+    },
+    shopCard: {
+      backgroundColor: '#121824',
+      border: '1px solid #1c2436',
+      borderRadius: '20px',
+      padding: '20px',
+      display: 'flex',
+      gap: '16px',
+      alignItems: 'center',
+      cursor: 'pointer'
+    },
+    shopAvatar: {
+      width: '56px',
+      height: '56px',
+      borderRadius: '12px',
+      backgroundColor: 'rgba(59, 130, 246, 0.15)',
+      color: '#3b82f6',
+      display: 'flex',
+      justifyContent: 'center',
+      alignItems: 'center',
+      fontSize: '20px',
+      fontWeight: '700',
+      flexShrink: 0
+    },
+    tagContainer: {
+      display: 'flex',
+      flexWrap: 'wrap',
+      gap: '6px',
+      marginTop: '8px'
+    },
+    tag: {
+      fontSize: '10px',
+      backgroundColor: '#1e293b',
+      color: '#94a3b8',
+      padding: '2px 8px',
+      borderRadius: '6px'
     }
-    fetchActiveOrder()
-  }, [])
+  };
 
-  useEffect(() => {
-    const timer = window.setInterval(() => {
-      setActiveSlide((currentIndex) => (currentIndex + 1) % promoSlides.length)
-    }, 4000)
-    return () => window.clearInterval(timer)
-  }, [])
-
-  const filteredServices = useMemo(
-    () =>
-      services.filter((service) => {
-        const searchableText = `${service.name} ${service.description}`.toLowerCase()
-        return searchableText.includes(searchText.toLowerCase())
-      }),
-    [searchText],
-  )
+  const serviceList = [
+    { name: 'Wash', desc: 'Everyday clothes', icon: <Shirt size={22} /> },
+    { name: 'Dry Clean', desc: 'Suits & formal wear', icon: <Layers size={22} /> },
+    { name: 'Iron', desc: 'Steam & press', icon: <Wind size={22} /> },
+    { name: 'Shoe Clean', desc: 'Sneakers & leather', icon: <Sparkles size={22} /> },
+    { name: 'Bedding', desc: 'Bedsheets & towels', icon: <Scissors size={22} /> },
+    { name: 'Fold & Pack', desc: 'Crisp & ready', icon: <Box size={22} /> }
+  ];
 
   return (
-    <main className="home-page">
-      <header className="home-header">
+    <div style={styles.wrapper}>
+      <header style={styles.header}>
         <div>
-          <p className="eyebrow">Hexa Laundary</p>
-          <h1>Hi, {user?.firstName || 'there'}</h1>
+          <div style={styles.brandText}>Hexa Laundry</div>
+          <h1 style={styles.welcomeText}>Hi, Hari Krishna</h1>
         </div>
-        <div className="header-actions" aria-label="Account actions">
-          <ThemeToggle />
-          <button className="icon-button" type="button" aria-label="Cart" onClick={() => navigate('/cart')}>
-            <CartIcon />
-          </button>
+        <div style={styles.actionControls}>
+          <div style={styles.iconCircle} onClick={() => setIsDarkMode(!isDarkMode)}>
+            {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
+          </div>
+          <div style={styles.iconCircle}>
+            <ShoppingCart size={20} />
+          </div>
         </div>
       </header>
 
-      <div className="search-wrapper" aria-label="Search services">
-        <span className="search-icon-wrap"><SearchIcon /></span>
-        <input
-          type="search"
-          value={searchText}
-          onChange={(event) => setSearchText(event.target.value)}
-          placeholder="Search for wash, iron..."
+      <div style={styles.searchContainer}>
+        <Search size={20} style={styles.searchIcon} />
+        <input 
+          type="text" 
+          placeholder="Search for wash, iron..." 
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          style={styles.searchInput}
         />
       </div>
 
-      <section className="promo-banner" aria-label="Promotional offers">
-        <div className="promo-content">
-          <span className="promo-badge">{promoSlides[activeSlide].badge}</span>
-          <h2>{promoSlides[activeSlide].title}</h2>
-          <p>{promoSlides[activeSlide].description}</p>
-        </div>
-        <div className="carousel-dots" aria-label="Offer carousel">
-          {promoSlides.map((_, index) => (
-            <button
-              key={promoSlides[index].badge}
-              className={`carousel-dot ${index === activeSlide ? 'active' : ''}`}
-              type="button"
-              aria-label={`Show offer ${index + 1}`}
-              onClick={() => setActiveSlide(index)}
-            />
-          ))}
-        </div>
-      </section>
-
-      <section aria-labelledby="services-title">
-        <div className="section-header">
-          <h2 id="services-title">Services</h2>
-          <button className="see-all" type="button" onClick={() => navigate('/services')}>
-            See all
-          </button>
+      <div style={styles.mainGrid}>
+        <div style={styles.promoCard}>
+          <div>
+            <div style={styles.badge}>New User Offer</div>
+            <h2 style={styles.promoHeading}>Get 20% OFF on your first wash</h2>
+            <p style={styles.promoSub}>Fresh clothes, doorstep pickup, and fast delivery.</p>
+          </div>
+          
+          <div style={styles.dotsContainer}>
+            <div style={styles.dot(true)}></div>
+            <div style={styles.dot(false)}></div>
+            <div style={styles.dot(false)}></div>
+          </div>
         </div>
 
-        <div className="service-grid">
-          {filteredServices.map((service) => {
-            const ServiceIcon = service.icon
-            return (
-              <button
-                className="service-card"
-                key={service.name}
-                type="button"
-                onClick={() => navigate('/services')}
-              >
-                <span className="service-icon"><ServiceIcon /></span>
-                <span>
-                  <h3>{service.name}</h3>
-                  <p>{service.description}</p>
-                </span>
-              </button>
-            )
-          })}
+        <div>
+          {/* Yahan pehle styles.servicesHeader tha jo object me missing tha, isliye inline flex de diya taaki crash na ho */}
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+            <h3 style={{ fontSize: '20px', fontWeight: '700', margin: 0 }}>Services</h3>
+            <button style={styles.seeAll}>See all</button>
+          </div>
+
+          <div style={styles.servicesGrid}>
+            {serviceList.map((srv, index) => (
+              <div key={index} style={styles.serviceCard}>
+                <div style={styles.serviceIconBox}>{srv.icon}</div>
+                <h4 style={styles.serviceName}>{srv.name}</h4>
+                <p style={styles.serviceDesc}>{srv.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div style={styles.shopsContainer}>
+        <div style={styles.sectionHeader}>
+          <h3 style={styles.sectionTitle}>Select Nearby Laundry Shop</h3>
+          <span style={{ fontSize: '13px', color: '#3b82f6', display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <MapPin size={14} /> Live Location
+          </span>
         </div>
 
-        {filteredServices.length === 0 && (
-          <p className="no-results">No services found for your search.</p>
+        {loading ? (
+          <p style={{ color: '#64748b', fontSize: '14px' }}>Shops ki live details aa rahi hain...</p>
+        ) : (
+          <div style={styles.shopsGrid}>
+            {filteredShops.map((shop) => (
+              <div key={shop._id || shop.id} style={styles.shopCard}>
+                {/* FIX 2: Avatar me shop.shopName pass kiya */}
+                <div style={styles.shopAvatar}>{(shop.shopName || shop.name || 'L').charAt(0)}</div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  {/* FIX 3: shop.name ki jagah shop.shopName render kiya */}
+                  <h4 style={{ margin: '0 0 4px 0', fontSize: '16px', fontWeight: '700', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {shop.shopName || shop.name}
+                  </h4>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '4px', color: '#94a3b8', fontSize: '12px' }}>
+                    <MapPin size={12} style={{ flexShrink: 0 }} />
+                    <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{shop.address || 'N/A'}</span>
+                  </div>
+                  <div style={styles.tagContainer}>
+                    {(shop.services || []).map((srv, idx) => (
+                      <span key={idx} style={styles.tag}>
+                        {typeof srv === 'object' ? srv.name : srv}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         )}
-      </section>
-
-      {activeOrder && (
-        <section className="active-order-card" aria-labelledby="active-order-title">
-          <div className="order-top">
-            <div>
-              <h2 id="active-order-title">Active Order</h2>
-              <p className="order-meta">
-                #{activeOrder._id.slice(-8).toUpperCase()} · {activeOrder.services.reduce((c, s) => c + s.quantity, 0)} items
-              </p>
-            </div>
-            <span className="status-pill">{activeOrder.status}</span>
-          </div>
-
-          <div className="order-timeline">
-            <label className="timeline-item active">
-              <input className="timeline-checkbox" type="checkbox" checked readOnly />
-              <div>
-                <h3>Pickup scheduled</h3>
-                <p>
-                  {activeOrder.pickupDate
-                    ? `${formatOrderDate(activeOrder.pickupDate)} · ${activeOrder.pickupTime?.split(' · ')[0] || 'Slot pending'}`
-                    : 'Pickup pending'}
-                </p>
-              </div>
-            </label>
-            <label className="timeline-item in-progress">
-              <input className="timeline-checkbox" type="checkbox" readOnly />
-              <div>
-                <h3>Washing in progress</h3>
-                <p>
-                  {activeOrder.deliveryDate
-                    ? `Expected by ${formatOrderDate(activeOrder.deliveryDate)}`
-                    : 'Expected soon'}
-                </p>
-              </div>
-            </label>
-          </div>
-
-          <button className="view-order-button" type="button" onClick={() => navigate('/track-order')}>
-            View Active Order
-          </button>
-        </section>
-      )}
-
-      <button className="pickup-button" type="button" onClick={() => navigate('/services')}>
-        Book a Pickup
-      </button>
-    </main>
-  )
+      </div>
+    </div>
+  );
 }
-
-function SearchIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="2" />
-      <path d="m20 20-3.5-3.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-    </svg>
-  )
-}
-
-function WashIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <rect x="5" y="3" width="14" height="18" rx="3" stroke="currentColor" strokeWidth="2" />
-      <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="2" />
-      <path d="M9 21h6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-    </svg>
-  )
-}
-
-function DryIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path d="M8 4h8l2 16H6L8 4Z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
-      <path d="M9 8h6M9 12h6M9 16h4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-    </svg>
-  )
-}
-
-function IronIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path d="M7 10 14.5 3H18l3 3v5l-3 3H9l-4 4v-4l2-4Z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
-      <path d="M7 14h10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-    </svg>
-  )
-}
-
-function ShoeIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path d="M3 15c3-1 5-1 7 0l7 3h4v-4l-5-5-7 1-6 5Z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
-      <path d="M8 15c1 2 3 3 6 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-    </svg>
-  )
-}
-
-function BeddingIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path d="M4 7h13a3 3 0 0 1 3 3v8H5a3 3 0 0 1-3-3V9a2 2 0 0 1 2-2Z" stroke="currentColor" strokeWidth="2" />
-      <path d="M4 12h16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-    </svg>
-  )
-}
-
-function FoldIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path d="M4 6h7v7H4V6ZM13 11h7v7h-7v-7ZM4 15h7v3a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-3ZM15 4h3a2 2 0 0 1 2 2v5h-5V4Z" stroke="currentColor" strokeWidth="2" strokeLinejoin="round" />
-    </svg>
-  )
-}
-
-function SunIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <circle cx="12" cy="12" r="4" stroke="currentColor" strokeWidth="2" />
-      <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
-    </svg>
-  )
-}
-
-function MoonIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  )
-}
-
-function CartIcon() {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path d="M6 6h15l-2 9H8L6 6Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M6 6 5 3H3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-      <circle cx="9" cy="20" r="1.5" fill="currentColor" />
-      <circle cx="18" cy="20" r="1.5" fill="currentColor" />
-    </svg>
-  )
-}
-
-export default HomePage
